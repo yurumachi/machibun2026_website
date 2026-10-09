@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>まちナかぶんかさい｜トップページ</title>
+<meta name="description" content="ここにサイトの説明文（120字程度）を入れます。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+Mono:wght@400&display=swap">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+<a class="skip-link" href="#main">本文へ移動</a>
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="site-header__logo" href="#main">まちナかぶんかさい</a>
+    <nav class="global-nav" aria-label="メインメニュー">
+      <ul>
+        <li><a href="#main" aria-current="page">ホーム</a></li>
+        <li><a href="#about">概要</a></li>
+        <li><a href="#news">お知らせ</a></li>
+        <li><a href="#faq">よくある質問</a></li>
+        <li><a href="#contact">お問い合わせ</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <!-- 装飾（読み上げ不要）。位置・大きさは自由に調整 -->
+    <span class="blob" aria-hidden="true" style="width:min(22rem,70vw);height:min(18rem,56vw);left:-6rem;top:-5rem"></span>
+    <span class="blob" aria-hidden="true" style="width:min(18rem,56vw);height:min(15rem,48vw);right:-5rem;top:1rem"></span>
+    <span class="blob" aria-hidden="true" style="width:min(30rem,90vw);height:min(13rem,42vw);left:18%;bottom:-6rem"></span>
+    <div class="container">
+      <p class="hero__eyebrow">まちナかで、「すき」を進化させていく。</p>
+      <h1>まちナかぶんかさい</h1>
+      <p class="hero__lead">好きが見つかる、まちなかの文化祭。開催日・場所・できることを、ここに短く書きます。</p>
+      <div class="hero__actions">
+        <a class="btn" href="#about">詳しく見る</a>
+        <a class="btn btn--secondary" href="#contact">お問い合わせ</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="about">
+    <div class="container">
+      <h2 class="section__title">概要</h2>
+      <div class="grid grid--3">
+        <article class="card">
+          <h3 class="card__title"><a href="#about">項目その1</a></h3>
+          <p>説明文を2〜3行で。1カードに1つの情報だけを載せます。</p>
+        </article>
+        <article class="card">
+          <h3 class="card__title"><a href="#about">項目その2</a></h3>
+          <p>説明文を2〜3行で。リンクの文言は「こちら」ではなく内容を書きます。</p>
+        </article>
+        <article class="card">
+          <h3 class="card__title"><a href="#about">項目その3</a></h3>
+          <p>説明文を2〜3行で。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--subtle" id="news">
+    <div class="container">
+      <h2 class="section__title">お知らせ</h2>
+      <div class="notice notice--info" role="note" style="margin-bottom: var(--space-4)">
+        <div>
+          <p class="notice__title">重要なお知らせ</p>
+          <p>特に目立たせたい情報はここに。使いすぎると効果が薄れるので1つまで。</p>
+        </div>
+      </div>
+      <ul class="news">
+        <li><time datetime="2026-10-09">2026年10月9日</time><span><span class="label">お知らせ</span></span><a href="#news">お知らせのタイトルが入ります</a></li>
+        <li><time datetime="2026-10-01">2026年10月1日</time><span><span class="label">イベント</span></span><a href="#news">お知らせのタイトルが入ります</a></li>
+        <li><time datetime="2026-09-20">2026年9月20日</time><span><span class="label">お知らせ</span></span><a href="#news">お知らせのタイトルが入ります</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="info">
+    <div class="container">
+      <h2 class="section__title">基本情報</h2>
+      <div class="table-wrap">
+        <table>
+          <caption class="sr-only">基本情報</caption>
+          <tbody>
+            <tr><th scope="row">名称</th><td>まちナかぶんかさい（まちぶん）</td></tr>
+            <tr><th scope="row">日時</th><td>2026年XX月XX日（X）XX:00〜XX:00</td></tr>
+            <tr><th scope="row">場所</th><td>〒000-0000 住所をここに</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--subtle" id="faq">
+    <div class="container">
+      <h2 class="section__title">よくある質問</h2>
+      <div class="accordion reading">
+        <details open>
+          <summary>質問1がここに入ります</summary>
+          <div class="accordion__body"><p>回答がここに入ります。</p></div>
+        </details>
+        <details>
+          <summary>質問2がここに入ります</summary>
+          <div class="accordion__body"><p>回答がここに入ります。</p></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="contact">
+    <div class="container">
+      <h2 class="section__title">お問い合わせ</h2>
+      <form class="reading" id="contact-form" action="#" method="post">
+        <div class="field">
+          <label class="field__label" for="name">お名前 <span class="label label--solid">必須</span></label>
+          <input class="input" id="name" name="name" type="text" autocomplete="name">
+        </div>
+        <div class="field">
+          <label class="field__label" for="email">メールアドレス <span class="label label--solid">必須</span></label>
+          <p class="field__hint" id="email-hint">例：taro@example.com</p>
+          <input class="input" id="email" name="email" type="email" autocomplete="email" aria-describedby="email-hint">
+        </div>
+        <div class="field">
+          <label class="field__label" for="message">お問い合わせ内容</label>
+          <textarea class="textarea" id="message" name="message"></textarea>
+        </div>
+        <button class="btn" type="submit">送信する</button>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <ul>
+      <li><a href="#main">プライバシーポリシー</a></li>
+      <li><a href="#main">アクセシビリティ</a></li>
+      <li><a href="#contact">お問い合わせ</a></li>
+    </ul>
+    <small>&copy; 2026 まちナかぶんかさい</small>
+  </div>
+</footer>
+</body>
+</html>
