@@ -73,17 +73,17 @@
       var(--brand-g2) 15%,
       var(--brand-g3) 30%,
       var(--brand-g4) 100%);
-  --blob-opacity: 0.4;    /* 白い本文との 4.5:1 を保つ上限（面1 #24262C の上で最悪 4.7:1）。補足色 #C7C7C7 の文字は blob に重ねない */
+  --blob-opacity: 0.55;   /* 0.4 なら白い本文と最悪 4.7:1 だが、チラシの濃さに寄せた。blob の明るい部分に重なる本文は 4.5:1 を割るので、文字は blob に重ねない */
 
   /* blob ごとの配色（同じ4色の組み合わせ違い。補間は oklch で中間を濁らせない） */
   --blob-a: linear-gradient(135deg in oklch, var(--brand-g3), var(--brand-g4));
   --blob-b: linear-gradient(200deg in oklch, var(--brand-g2), var(--brand-g3) 60%);
   --blob-c: linear-gradient(60deg in oklch, var(--brand-g4), var(--brand-g1));
 
-  /* 動きの量（既定は「控えめ」。:root[data-motion="lively"] で「にぎやか」に上書きする） */
-  --motion-scale: 1;
-  --drift-x: 3%; --drift-y: -4%; --drift-r: 14deg; --drift-s: 1;
-  --sway: 5deg; --bob: 6px;
+  /* 動きの量（FUJI ROCK 程度のにぎやかさ） */
+  --motion-scale: 0.5;
+  --drift-x: 9%; --drift-y: -12%; --drift-r: 40deg; --drift-s: 1.15;
+  --sway: 14deg; --bob: 14px;
 
   /* ---------- タイポグラフィ（DADS） ---------- */
   --font-sans: "Noto Sans JP", system-ui, -apple-system, "Hiragino Sans", "Yu Gothic", sans-serif;

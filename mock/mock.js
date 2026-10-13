@@ -12,18 +12,9 @@ const panel = document.createElement("form");
 panel.className = "mock-panel";
 panel.setAttribute("aria-label", "モック確認用の設定");
 panel.innerHTML = `
-  <fieldset><legend>動きの量</legend>
-    <label><input type="radio" name="motion" value="lively" checked>にぎやか</label>
-    <label><input type="radio" name="motion" value="">控えめ</label>
-    <label><input type="radio" name="motion" value="off">なし</label>
-  </fieldset>
   <fieldset><legend>blob の量</legend>
     <label><input type="radio" name="blobs" value="" checked>多め</label>
     <label><input type="radio" name="blobs" value="few">少なめ</label>
-  </fieldset>
-  <fieldset><legend>blob の濃さ</legend>
-    <label><input type="radio" name="strength" value="" checked>標準（0.4）</label>
-    <label><input type="radio" name="strength" value="strong">濃い（0.55・本文が基準割れ）</label>
   </fieldset>
   <button class="mock-panel__close" type="button">この設定パネルを隠す</button>`;
 panel.addEventListener("change", (e) => {

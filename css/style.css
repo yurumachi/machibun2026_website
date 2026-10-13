@@ -423,14 +423,7 @@ tbody th { font-weight: var(--fw-bold); white-space: nowrap; }
 }
 
 /* ---------- 動きの制御 ---------- */
-/* にぎやか: 速く大きく動かす（FUJI ROCK 程度の量） */
-:root[data-motion="lively"] {
-  --motion-scale: 0.5;
-  --drift-x: 9%; --drift-y: -12%; --drift-r: 40deg; --drift-s: 1.15;
-  --sway: 14deg; --bob: 14px;
-}
 :root[data-paused] *, :root[data-paused] *::before, :root[data-paused] *::after { animation-play-state: paused !important; }
-:root[data-motion="off"] *, :root[data-motion="off"] *::before, :root[data-motion="off"] *::after { animation: none !important; transition: none !important; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .motion-toggle { display: none; }

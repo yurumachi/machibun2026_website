@@ -11,5 +11,4 @@
 .mock-panel label { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; }
 .mock-panel[hidden] { display: none; }
 .mock-panel__close { justify-self: end; font: inherit; color: var(--color-link); background: none; border: 0; text-decoration: underline; cursor: pointer; }
-:root[data-strength="strong"] { --blob-opacity: 0.55; }
 @media (max-width: 767px) { .mock-panel { bottom: calc(var(--tabbar-h) + var(--space-1)); } }
