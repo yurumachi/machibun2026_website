@@ -68,12 +68,22 @@
   --color-error:   var(--c-red-400);
 
   /* ブランドグラデーション（装飾専用。この上に小さい文字は載せない） */
-  --gradient-brand: linear-gradient(90deg,
+  --gradient-brand: linear-gradient(90deg in oklch,
       var(--brand-g1) 0%,
       var(--brand-g2) 15%,
       var(--brand-g3) 30%,
       var(--brand-g4) 100%);
-  --blob-opacity: 0.4;    /* 白文字との4.5:1を保つための濃度（上げすぎない） */
+  --blob-opacity: 0.4;    /* 白い本文との 4.5:1 を保つ上限（面1 #24262C の上で最悪 4.7:1）。補足色 #C7C7C7 の文字は blob に重ねない */
+
+  /* blob ごとの配色（同じ4色の組み合わせ違い。補間は oklch で中間を濁らせない） */
+  --blob-a: linear-gradient(135deg in oklch, var(--brand-g3), var(--brand-g4));
+  --blob-b: linear-gradient(200deg in oklch, var(--brand-g2), var(--brand-g3) 60%);
+  --blob-c: linear-gradient(60deg in oklch, var(--brand-g4), var(--brand-g1));
+
+  /* 動きの量（既定は「控えめ」。:root[data-motion="lively"] で「にぎやか」に上書きする） */
+  --motion-scale: 1;
+  --drift-x: 3%; --drift-y: -4%; --drift-r: 14deg; --drift-s: 1;
+  --sway: 5deg; --bob: 6px;
 
   /* ---------- タイポグラフィ（DADS） ---------- */
   --font-sans: "Noto Sans JP", system-ui, -apple-system, "Hiragino Sans", "Yu Gothic", sans-serif;
