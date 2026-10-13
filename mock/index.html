@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="ja" data-motion="lively">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>まちナかぶんかさい 2026（モック）</title>
+<meta name="description" content="長岡のまちなかで開く、夜のマルシェとまちの踊り場。まちナかぶんかさい 2026 の公式サイト（デザインモック）。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/blobs.css">
+<link rel="stylesheet" href="mock.css">
+<link rel="preload" as="image" href="../assets/logo.svg">
+<script src="mock.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">本文へ移動</a>
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="site-header__logo" href="#main"><img src="../assets/logo.svg" alt="まちナかぶんかさい" width="98" height="47"></a>
+    <nav class="global-nav" aria-label="メインメニュー">
+      <ul>
+        <li><a href="#news">お知らせ</a></li>
+        <li><a href="#exhibitors">出展者</a></li>
+        <li><a href="#timetable">スケジュール</a></li>
+        <li><a href="#access">アクセス</a></li>
+      </ul>
+    </nav>
+    <button class="motion-toggle" type="button" aria-pressed="false">動きを止める</button>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero hero--ticket" aria-labelledby="hero-title">
+    <div class="blob-field" aria-hidden="true"><div class="blob-field__inner">
+      <span class="blob blob--s2 hb-1"></span>
+      <span class="blob blob--b blob--s1 hb-2"></span>
+      <span class="blob blob--c blob--s3 hb-3"></span>
+      <span class="blob blob--s4 blob--extra hb-4"></span>
+      <span class="blob blob--c blob--s5 blob--extra hb-5"></span>
+      <span class="blob blob--b blob--s3 only-wide hb-6"></span>
+      <span class="blob blob--s5 only-wide hb-7"></span>
+    </div></div>
+    <div class="hero-side" aria-hidden="true">
+      <img class="sway-float hero-side--talk" src="../assets/illust/talk.webp" alt="" width="640" height="556" loading="lazy">
+      <img class="sway-hang hero-side--bulb" src="../assets/illust/bulb-1.webp" alt="" width="284" height="317" loading="lazy">
+      <img class="sway-float hero-side--balloon" src="../assets/illust/balloon.webp" alt="" width="325" height="407" loading="lazy">
+      <img class="sway-hang hero-side--garland" src="../assets/illust/bulb-garland.webp" alt="" width="640" height="294" loading="lazy">
+    </div>
+
+    <div class="container">
+      <div class="ticket">
+        <div class="ticket__main">
+          <img class="linework bob hero-art--cheers" src="../assets/illust/cheers.webp" alt="" width="640" height="447">
+          <img class="linework sway-hang hide-sm hero-art--garland" src="../assets/illust/garland.webp" alt="" width="529" height="290">
+          <img class="linework sway-float hero-art--balloons" src="../assets/illust/balloons.webp" alt="" width="553" height="605">
+          <img class="linework sway-hang hide-sm hero-art--bulb" src="../assets/illust/bulb-2.webp" alt="" width="329" height="295">
+          <img class="linework bob hide-sm hero-art--market" src="../assets/illust/market.webp" alt="" width="640" height="419">
+
+          <p class="ticket__tagline"><span>夜のまち、</span><span>みんなが耀く、</span><span>舞台となれ。</span></p>
+          <h1 class="ticket__logo" id="hero-title"><img src="../assets/logo.svg" alt="まちナかぶんかさい" width="490" height="235"></h1>
+          <p class="ticket__sub">夜のマルシェと<br>まちの踊り場</p>
+        </div>
+
+        <div class="ticket__stub">
+          <p><time datetime="2026-10-03"><span class="ticket__date">10.3<small>sat</small></span></time></p>
+          <p class="ticket__time">16:00–21:00</p>
+          <p class="ticket__place"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg>大光銀行駐車場</p>
+          <p class="ticket__address">新潟県長岡市東坂之上町2-2-4</p>
+          <div class="ticket__actions">
+            <a class="btn" href="#exhibitors">出展者を見る</a>
+            <a class="btn btn--secondary" href="#access">会場へのアクセス</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="news">
+    <div class="container">
+      <h2 class="section__title">お知らせ</h2>
+      <ul class="news">
+        <li><time datetime="2026-09-20">2026年9月20日</time><span><span class="label">出展</span></span><a href="#exhibitors">出展者30組が決まりました</a></li>
+        <li><time datetime="2026-09-05">2026年9月5日</time><span><span class="label">お知らせ</span></span><a href="#news">雨天時の開催について（小雨決行、荒天の場合は前日18時にお知らせします）</a></li>
+        <li><time datetime="2026-08-01">2026年8月1日</time><span><span class="label">募集</span></span><a href="#news">ステージ出演者の募集を始めました</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--subtle section--wave" id="exhibitors">
+    <div class="container">
+      <h2 class="section__title">出展者</h2>
+      <p class="section__lead">マルシェ・フード・ワークショップあわせて30組が出展します。</p>
+      <ul class="exhibitors">
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-1.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">フード</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">こめこパン工房</a></h3>
+            <p class="exhibitor__catch">地元のお米でつくる、もちもちの米粉パン。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-2.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">マルシェ</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">まちかどコーヒー</a></h3>
+            <p class="exhibitor__catch">夜だけの限定ブレンドを用意します。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-3.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">ワークショップ</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">長岡おやさい便</a></h3>
+            <p class="exhibitor__catch">朝どれの野菜を、まちなかで。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <div class="exhibitor__photo exhibitor__photo--none" aria-hidden="true"></div>
+          <div class="exhibitor__body">
+            <span><span class="label">ドリンク</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">古着とレコードの店 ゆうがた</a></h3>
+            
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-5.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">フード</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">手しごと雑貨 ふにゃり</a></h3>
+            <p class="exhibitor__catch">ふにゃっとした形の、手づくりの小物。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-6.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">マルシェ</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">信濃川ほとりの焼き菓子屋さん（今年は新作のりんごタルトもあります）</a></h3>
+            <p class="exhibitor__catch">りんごは長岡産。売り切れ次第終了です。今年は新作のりんごタルトと、焼きたてのフィナンシェ、季節のジャムも持っていきます。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-1.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">ワークショップ</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">クラフトビール 夜ふかし</a></h3>
+            <p class="exhibitor__catch">地元のお米でつくる、もちもちの米粉パン。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-2.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">ドリンク</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">似顔絵ワークショップ</a></h3>
+            <p class="exhibitor__catch">夜だけの限定ブレンドを用意します。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <div class="exhibitor__photo exhibitor__photo--none" aria-hidden="true"></div>
+          <div class="exhibitor__body">
+            <span><span class="label">フード</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">つまみ細工体験</a></h3>
+            <p class="exhibitor__catch">朝どれの野菜を、まちなかで。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-4.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">マルシェ</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">TEA STAND</a></h3>
+            
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-5.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">ワークショップ</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">ちいさな本屋</a></h3>
+            <p class="exhibitor__catch">ふにゃっとした形の、手づくりの小物。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-6.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">ドリンク</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">アロマキャンドル</a></h3>
+            <p class="exhibitor__catch">りんごは長岡産。売り切れ次第終了です。今年は新作のりんごタルトと、焼きたてのフィナンシェ、季節のジャムも持っていきます。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-1.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">フード</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">とん汁</a></h3>
+            <p class="exhibitor__catch">地元のお米でつくる、もちもちの米粉パン。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <div class="exhibitor__photo exhibitor__photo--none" aria-hidden="true"></div>
+          <div class="exhibitor__body">
+            <span><span class="label">マルシェ</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">フォトブース</a></h3>
+            <p class="exhibitor__catch">夜だけの限定ブレンドを用意します。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-3.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">ワークショップ</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">ドライフラワー</a></h3>
+            <p class="exhibitor__catch">朝どれの野菜を、まちなかで。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-4.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">ドリンク</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">Nagaoka Student Hand-made Accessories Collective</a></h3>
+            
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-5.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">フード</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">やきとり</a></h3>
+            <p class="exhibitor__catch">ふにゃっとした形の、手づくりの小物。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-6.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">マルシェ</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">スパイスカレー</a></h3>
+            <p class="exhibitor__catch">りんごは長岡産。売り切れ次第終了です。今年は新作のりんごタルトと、焼きたてのフィナンシェ、季節のジャムも持っていきます。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <div class="exhibitor__photo exhibitor__photo--none" aria-hidden="true"></div>
+          <div class="exhibitor__body">
+            <span><span class="label">ワークショップ</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">レザークラフト</a></h3>
+            <p class="exhibitor__catch">地元のお米でつくる、もちもちの米粉パン。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-2.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">ドリンク</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">おにぎり</a></h3>
+            <p class="exhibitor__catch">夜だけの限定ブレンドを用意します。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-3.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">フード</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">植物とうつわ</a></h3>
+            <p class="exhibitor__catch">朝どれの野菜を、まちなかで。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-4.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">マルシェ</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">ポップコーン</a></h3>
+            
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-5.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">ワークショップ</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">シルクスクリーン体験</a></h3>
+            <p class="exhibitor__catch">ふにゃっとした形の、手づくりの小物。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <div class="exhibitor__photo exhibitor__photo--none" aria-hidden="true"></div>
+          <div class="exhibitor__body">
+            <span><span class="label">ドリンク</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">かき氷</a></h3>
+            <p class="exhibitor__catch">りんごは長岡産。売り切れ次第終了です。今年は新作のりんごタルトと、焼きたてのフィナンシェ、季節のジャムも持っていきます。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-1.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">フード</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">古本</a></h3>
+            <p class="exhibitor__catch">地元のお米でつくる、もちもちの米粉パン。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-2.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">マルシェ</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">手焼きせんべい</a></h3>
+            <p class="exhibitor__catch">夜だけの限定ブレンドを用意します。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-3.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">ワークショップ</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">ハーブティー</a></h3>
+            <p class="exhibitor__catch">朝どれの野菜を、まちなかで。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-4.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">ドリンク</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">似顔絵</a></h3>
+            
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <div class="exhibitor__photo exhibitor__photo--none" aria-hidden="true"></div>
+          <div class="exhibitor__body">
+            <span><span class="label">フード</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">ベーグル</a></h3>
+            <p class="exhibitor__catch">ふにゃっとした形の、手づくりの小物。</p>
+          </div>
+        </li>
+        <li class="card card--fun exhibitor">
+          <img class="exhibitor__photo" src="../assets/mock/photo-6.webp" alt="" width="800" height="600" loading="lazy" decoding="async">
+          <div class="exhibitor__body">
+            <span><span class="label">マルシェ</span></span>
+            <h3 class="exhibitor__name"><a href="exhibitor.html">ガチャガチャ</a></h3>
+            <p class="exhibitor__catch">りんごは長岡産。売り切れ次第終了です。今年は新作のりんごタルトと、焼きたてのフィナンシェ、季節のジャムも持っていきます。</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--blobbed" id="timetable">
+    <div class="container">
+    <span class="blob blob--b blob--s1 blob--grow" aria-hidden="true" style="width:min(26rem,70vw);height:min(20rem,56vw);right:-8rem;top:2rem"></span>
+    <span class="blob blob--s4 blob--grow blob--extra" aria-hidden="true" style="width:16rem;height:14rem;left:-6rem;bottom:0"></span>
+      <h2 class="section__title">スケジュール</h2>
+      <div class="table-wrap">
+        <table>
+          <caption class="sr-only">ステージのスケジュール</caption>
+          <thead><tr><th scope="col">時間</th><th scope="col">企画</th><th scope="col">場所</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">16:00</th><td>オープニング</td><td>メインステージ</td></tr>
+            <tr><th scope="row">16:30</th><td>学生バンド ライブ</td><td>メインステージ</td></tr>
+            <tr><th scope="row">17:30</th><td>夢の語り場トーク「まちで、やってみたいこと」</td><td>語り場テント</td></tr>
+            <tr><th scope="row">19:00</th><td>ゲリラお笑いライブ</td><td>メインステージ</td></tr>
+            <tr><th scope="row">20:00</th><td>ディスコパーティー</td><td>メインステージ</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--subtle section--wave" id="sponsors">
+    <div class="container">
+      <h2 class="section__title">協賛</h2>
+      <a class="ad" href="#sponsors">
+        <span class="label ad__label">広告</span>
+        <img src="../assets/mock/ad-banner.webp" alt="広告：協賛企業Aの秋のキャンペーン" width="1200" height="300" loading="lazy" decoding="async">
+      </a>
+      <div class="sponsors" style="margin-top: var(--space-6)">
+        <div>
+          <h3>特別協賛</h3>
+          <ul class="logo-grid logo-grid--l">
+            <li><a href="#sponsors"><img src="../assets/mock/logo-wide-1.svg" alt="SPONSOR A" width="400" height="100" loading="lazy"></a></li>
+            <li><a href="#sponsors"><img src="../assets/mock/logo-square-1.svg" alt="C" width="200" height="200" loading="lazy"></a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>協賛</h3>
+          <ul class="logo-grid logo-grid--m">
+            <li><a href="#sponsors"><img src="../assets/mock/logo-wide-2.svg" alt="協賛企業B" width="360" height="80" loading="lazy"></a></li>
+            <li><a href="#sponsors"><img src="../assets/mock/logo-square-2.svg" alt="D shop" width="160" height="160" loading="lazy"></a></li>
+            <li><a href="#sponsors"><img src="../assets/mock/logo-tall-1.svg" alt="E" width="120" height="200" loading="lazy"></a></li>
+            <li><a href="#sponsors"><img src="../assets/mock/logo-wide-3.svg" alt="SPONSOR F" width="480" height="90" loading="lazy"></a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>協力</h3>
+          <ul class="sponsor-names">
+            <li>協力団体G</li><li>協力団体H</li><li>まちなか商店会I</li><li>協力団体J</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="access">
+    <div class="container">
+      <h2 class="section__title">開催情報・アクセス</h2>
+      <div class="table-wrap">
+        <table>
+          <caption class="sr-only">開催情報</caption>
+          <tbody>
+            <tr><th scope="row">日時</th><td>2026年10月3日（土）16:00〜21:00</td></tr>
+            <tr><th scope="row">会場</th><td>大光銀行駐車場（新潟県長岡市東坂之上町2-2-4）<br><a href="https://maps.google.com/?q=新潟県長岡市東坂之上町2-2-4">Google マップで会場を開く</a></td></tr>
+            <tr><th scope="row">アクセス</th><td>JR長岡駅 大手口から徒歩5分</td></tr>
+            <tr><th scope="row">入場</th><td>無料</td></tr>
+            <tr><th scope="row">雨天時</th><td>小雨決行。荒天の場合は前日18時までにお知らせでお伝えします</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <ul>
+      <li><a href="#main">プライバシーポリシー</a></li>
+      <li><a href="#main">お問い合わせ</a></li>
+      <li><a href="https://www.instagram.com/yurumachi_nagaoka/">Instagram（@yurumachi_nagaoka）</a></li>
+    </ul>
+    <small>主催：ゆるまち委員会　&copy; 2026 まちナかぶんかさい</small>
+  </div>
+</footer>
+
+<nav class="tab-bar" aria-label="メインメニュー（画面下）">
+  <ul>
+    <li><a href="#news"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>お知らせ</a></li>
+    <li><a href="#exhibitors"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9h18"/><path d="M9 20v-6h6v6"/></svg>出展者</a></li>
+    <li><a href="#timetable"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>スケジュール</a></li>
+    <li><a href="#access"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>アクセス</a></li>
+  </ul>
+</nav>
+</body>
+</html>
