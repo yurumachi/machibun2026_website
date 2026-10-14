@@ -1,4 +1,5 @@
 import cloudflare from "@astrojs/cloudflare";
+import { cacheCloudflare } from "@astrojs/cloudflare/cache";
 import react from "@astrojs/react";
 import { fileURLToPath } from "node:url";
 import { d1 } from "@emdash-cms/cloudflare";
@@ -8,6 +9,9 @@ import emdash from "emdash/astro";
 export default defineConfig({
 	output: "server",
 	adapter: cloudflare(),
+	cache: { provider: cacheCloudflare() },
+	// 長い時間は採らない。公開したときは EmDash がキャッシュを消すが、消せなかったときに古いまま残るため
+	routeRules: { "/": { maxAge: 300 } },
 	image: {
 		layout: "constrained",
 		responsiveStyles: true,
