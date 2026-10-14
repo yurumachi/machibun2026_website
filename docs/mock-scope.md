@@ -6,12 +6,12 @@
 
 | パス | 中身 |
 |---|---|
-| `mock/index.html` | トップページ（1ページに全セクション） |
-| `mock/exhibitor.html` | 出展者の詳細ページ（CMS のリッチテキストの見え方を確かめる） |
-| `mock/mock.js` | モック確認用の切り替えパネルと、一時停止ボタンの処理だけ |
-| `css/tokens.css` / `css/style.css` | デザインシステムに、ブランド表現の部品を足す（モック専用にせず本番でも使う） |
-| `assets/logo.svg` | `docs/2024チラシ.ai` の3ページ目から取り出したロゴ（ベクター） |
-| `assets/illust/*.webp` | チラシに埋め込まれていた線画（ラスター。透過 PNG から WebP に変換） |
+| `docs/prototype/mock/index.html` | トップページ（1ページに全セクション） |
+| `docs/prototype/mock/exhibitor.html` | 出展者の詳細ページ（CMS のリッチテキストの見え方を確かめる） |
+| `docs/prototype/mock/mock.js` | モック確認用の切り替えパネルと、一時停止ボタンの処理だけ |
+| `docs/prototype/css/tokens.css` / `docs/prototype/css/style.css` | デザインシステムに、ブランド表現の部品を足す（モック専用にせず本番でも使う） |
+| `docs/prototype/assets/logo.svg` | `docs/2024チラシ.ai` の3ページ目から取り出したロゴ（ベクター） |
+| `docs/prototype/assets/illust/*.webp` | チラシに埋め込まれていた線画（ラスター。透過 PNG から WebP に変換） |
 
 ## 作るもの（細かく作る）
 

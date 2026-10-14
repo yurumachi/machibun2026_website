@@ -5,9 +5,9 @@
 
 ## ファイル構成
 ```
-css/tokens.css   … 色・文字・余白・角丸の値（ここだけ変えれば全体が変わる）
-css/style.css    … ベース + 部品（btn / card / notice / table / accordion / form / blob …）
-index.html       … 部品を組み合わせたサンプルページ（コピーして各ページに使う）
+docs/prototype/css/tokens.css   … 色・文字・余白・角丸の値（ここだけ変えれば全体が変わる）
+docs/prototype/css/style.css    … ベース + 部品（btn / card / notice / table / accordion / form / blob …）
+docs/prototype/index.html … 部品を組み合わせたサンプルページ（コピーして各ページに使う）
 ```
 
 ## テーマカラー
