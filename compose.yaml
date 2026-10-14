@@ -1,0 +1,18 @@
+# node_modules を名前付き volume に置くのは、Mac 側に Linux 用のバイナリを混ぜないため
+services:
+  dev:
+    build: .
+    working_dir: /work/site
+    volumes:
+      - .:/work
+      - node_modules:/work/site/node_modules
+      - pnpm_store:/root/.local/share/pnpm/store
+    ports:
+      - "4321:4321"
+    env_file:
+      - path: .env
+        required: false
+    command: pnpm dev --host 0.0.0.0
+volumes:
+  node_modules:
+  pnpm_store:
