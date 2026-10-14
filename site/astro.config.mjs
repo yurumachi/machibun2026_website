@@ -1,6 +1,7 @@
 import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
-import { d1, r2 } from "@emdash-cms/cloudflare";
+import { fileURLToPath } from "node:url";
+import { d1 } from "@emdash-cms/cloudflare";
 import { defineConfig } from "astro/config";
 import emdash from "emdash/astro";
 
@@ -15,7 +16,11 @@ export default defineConfig({
 		react(),
 		emdash({
 			database: d1({ binding: "DB", session: "auto" }),
-			storage: r2({ binding: "MEDIA" }),
+			// R2 は採らない。このアカウントで R2 を有効にすると支払い方法の登録が要るため（ADR 0004）
+			storage: {
+				entrypoint: fileURLToPath(new URL("./src/storage/kv.ts", import.meta.url)),
+				config: { binding: "MEDIA" },
+			},
 		}),
 	],
 	devToolbar: { enabled: false },
