@@ -7,12 +7,15 @@ services:
       - .:/work
       - node_modules:/work/site/node_modules
       - pnpm_store:/root/.local/share/pnpm/store
+      - cf_config:/root/.config/cloudflare
     ports:
       - "4321:4321"
     env_file:
       - path: .env
         required: false
-    command: pnpm dev --host 0.0.0.0
+    # --force で前のサーバーを止める方法は採らない。コンテナを作り直すと PID が振り直され、記録に残った PID が別のプロセスを指すため
+    command: pnpm dev --host 0.0.0.0 --ignore-lock
 volumes:
   node_modules:
   pnpm_store:
+  cf_config:
