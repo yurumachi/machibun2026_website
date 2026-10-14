@@ -1,6 +1,6 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "machibun2026",
+	"name": "machibun-website",
 	"main": "./src/worker.ts",
 	"compatibility_date": "2026-02-24",
 	"compatibility_flags": ["nodejs_compat"],
@@ -8,8 +8,8 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "machibun2026",
-			"database_id": "4dff514e-9f3f-4ddf-a2d7-273fbce121bc",
+			"database_name": "machibun",
+			"database_id": "c7349d56-5024-47bc-b3aa-905af1664633",
 		},
 	],
 	"kv_namespaces": [
@@ -22,20 +22,17 @@
 	"triggers": {
 		"crons": ["* * * * *"],
 	},
-	"env": {
-		"staging": {
-			"name": "machibun2026-staging",
-			"d1_databases": [
-				{
-					"binding": "DB",
-					"database_name": "machibun2026-staging",
-					"database_id": "238b67c7-ab67-4305-b6ea-f0f285c2f704",
-				},
-			],
-			"kv_namespaces": [
-				{ "binding": "MEDIA", "id": "2ae641097d0d449589fce79a71056d81" },
-				{ "binding": "SESSION", "id": "346f84bf0a62489db258a863451895ae" },
-			],
-		},
+	"previews": {
+		"d1_databases": [
+			{
+				"binding": "DB",
+				"database_name": "machibun-preview",
+				"database_id": "9af2f4b3-ccc7-41f6-892b-50434720730d",
+			},
+		],
+		"kv_namespaces": [
+			{ "binding": "MEDIA", "id": "2ae641097d0d449589fce79a71056d81" },
+			{ "binding": "SESSION", "id": "346f84bf0a62489db258a863451895ae" },
+		],
 	},
 }
