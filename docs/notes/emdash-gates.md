@@ -19,9 +19,9 @@ EmDash は、CPU と日本語の管理画面という2つの関門を通った�
 
 ### 試し方
 
-手元の開発サーバー（`docker compose up`）で行う。学生にも、同じ手順で触ってもらう。
+管理用の Preview で行う。学生にも、招待してから同じ手順で触ってもらう。
 
-1. http://localhost:4321/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin を開く（開発用の管理者でログインする）。
+1. https://preview-machibun-website.yurumachi-yuruyuru.workers.dev/_emdash/admin を開き、パスキーでログインする。
 2. 管理画面の言語を日本語にする。
 3. 出展者を1件、新しく作る。名前・カテゴリ・ひとこと・紹介文・出展場所の番号・リンクを入れる。
 4. 写真を、管理画面から上げて付ける（KV に置く仕組みで、管理画面から上げるのは初めて）。
@@ -65,7 +65,10 @@ EmDash は、CPU と日本語の管理画面という2つの関門を通った�
 
 ### 軽くする手
 
-- ページのキャッシュ: `@astrojs/cloudflare` に Astro のページのキャッシュ（`cacheCloudflare()`）があり、トップページはもう `Astro.cache.set` で印を付けている。つなげば、2回目以降は Worker を通らずに返せる見込み。workers.dev と無料プランで効くかは未確認。
+- ページのキャッシュ: `@astrojs/cloudflare` の `cacheCloudflare()` と、Workers Caching（`wrangler.jsonc` の `cache`）をつないだ（2026-10-15）。トップページは `Cloudflare-CDN-Cache-Control: public, max-age=300` を返すようになったが、Preview ではキャッシュから返らず、毎回 Worker が動いた（`Cf-Cache-Status` が無く、`Cloudflare-CDN-Cache-Control` も消されずに外まで届く）。互換性の日付で止まる機能ではなかった（Cloudflare の互換性フラグの一覧に無い）。`wrangler preview` がまだベータで `cache` を反映していないのか、Worker 全体の設定として本番のデプロイ（`wrangler deploy`）でしか有効にならないのかは、分かっていない。本番で確かめる。
+  - キャッシュを有効にすると、静的なファイルへのアクセスも Workers のリクエスト数（無料は1日 10万）に数えられる。
+  - Preview はそれぞれ別のキャッシュを持つ。管理用の Preview で公開しても、消えるのはその Preview のキャッシュだけで、feat ごとの Preview は最長 5 分古いまま出る。本番は管理画面と公開ページが同じなので、この問題は無い。
+  - キャッシュから返っても、キャッシュに無いとき（初めてのアクセス、公開の直後、5 分ごと）は今と同じ CPU 時間がかかる。上限を下回るわけではない。
 - 一件ずつの問い合わせを減らす: カテゴリを select の項目にする、出演枠を出演者の中のくり返し項目にする、など。中身の設計が変わるので、user と相談する。
 
 ### 判定の目安
