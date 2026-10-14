@@ -1,4 +1,4 @@
-# node_modules を名前付き volume に置くのは、Mac 側に Linux 用のバイナリを混ぜないため
+# node_modules を名前付き volume に置くのは、ホスト側に Linux 用のバイナリを混ぜないため
 services:
   dev:
     build: .
