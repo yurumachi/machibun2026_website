@@ -1,0 +1,59 @@
+# EmDash を本採用する前の2つの関門
+
+EmDash は、CPU と日本語の管理画面という2つの関門を通ったら本採用する（`docs/site-plan.md` の 3 章）。落ちたら、Keystatic Cloud か Pages CMS を、Astro の静的サイトと組み合わせる形に切り替える。ここには確かめ方と結果を書く。
+
+## 関門2: 日本語の管理画面
+
+### 翻訳の数（2026-10-15、`@emdash-cms/admin` 1.2.0）
+
+管理画面の文字 3,372 のうち、1,476（44%）が英語のまま。site-plan を書いたときの 41% より増えた。新しい画面に、翻訳が追いついていない。
+
+入力と公開の流れにも、英語が残る。例:
+
+- 公開: 「Publish now?」「Publish changes?」「{title} is now live.」「Draft version」「Schedule publication」
+- 画像: 「Drop an image here or browse」「Choose an image from the library or upload a new one.」「Uploading image…」「Describe the image」「Edit image」
+- 入力: 「URL slug」「Auto-generated from the title. You can change it.」「{name} is required.」
+- ログイン: 「Sign in to {siteName}」「Create passkey」「What is a passkey?」
+
+翻訳をサイトの側で足す仕組みは無い（`admin.locales` は、出す言語を絞るだけ）。足すなら、EmDash に翻訳を送るか、パッケージに手を入れることになる。
+
+### 試し方
+
+手元の開発サーバー（`docker compose up`）で行う。学生にも、同じ手順で触ってもらう。
+
+1. http://localhost:4321/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin を開く（開発用の管理者でログインする）。
+2. 管理画面の言語を日本語にする。
+3. 出展者を1件、新しく作る。名前・カテゴリ・ひとこと・紹介文・出展場所の番号・リンクを入れる。
+4. 写真を、管理画面から上げて付ける（KV に置く仕組みで、管理画面から上げるのは初めて）。
+5. 下書きで保存し、トップページに出ないことを見る。
+6. 公開し、トップページに出ることを見る。
+7. 公開した出展者の紹介文を直し、もう一度公開する。
+8. お知らせを1件作って公開し、一覧の上に固定する。
+9. 出演者と出演枠を1件ずつ作り、スケジュールに出ることを見る。
+
+### 書き残すこと
+
+- 英語のままで、意味が分からなかった画面と文言
+- 迷った操作（どこを押せばよいか分からなかった、など）
+- 動かなかったこと（とくに 4 の写真）
+
+判定の目安: 出展者・実行委員が、説明書を1枚渡せば迷わず 3〜8 をできるなら通す。英語のせいで説明書が厚くなるなら、翻訳を EmDash に送れるか、間に合うかで判断する。
+
+## 関門1: CPU（10ms）
+
+### 測り方
+
+- `wrangler.jsonc` で Workers Logs（`observability`）を有効にした。デプロイすると、1回のアクセスごとの CPU 時間が、Cloudflare の管理画面の Workers Logs に残る。site-plan に書いた `wrangler tail` の代わりにこれを使う。
+- 無料プランの Workers Logs は、1日 20万件まで残し、3日で消える。試すアクセスの数では足りる。
+- ステージングで、次のページを、それぞれ 20 回ほど開く: トップページ、管理画面の一覧、出展者の編集画面、画像（`/_emdash/api/media/file/...` と `/_image`）。
+- あわせて、毎分の cron が上限で落ちていないかを見る。
+
+### 判定の目安
+
+- 10ms を超えて失敗するアクセスが、ふつうに開いたときに出ないなら通す。
+- 起動したばかりの最初の1回だけ超えるなら、どのくらいの頻度で起きるかを見てから決める。
+
+### デプロイの前に決めること
+
+- デプロイの方法。cf は `wrangler.jsonc` の project を、`cf migrate` で移さないとデプロイできない（Cloudflare の文書「cf and Wrangler」）。ADR 0005 で移さないことにしたので、cf ではデプロイできない。
+- 最初の管理者の作り方。EmDash は、空のデータベースで最初に管理画面を開いた人が管理者を作れる（合言葉などは無い）。デプロイしたら、すぐに管理者を作る必要がある。
