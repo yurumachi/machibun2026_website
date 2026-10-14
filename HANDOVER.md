@@ -11,9 +11,15 @@
 - ブランチは `feat` と `main` だけ。`feat` ブランチで開発し、PR で `main` に取り込む。`develop` は作らない（1人で開発し、`feat` の Preview で確かめられるため）。いまの作業は `feat/emdash-site`。
 - 環境は3つ。データはそれぞれ別で、つながない。
   - 手元（コンテナ）: `site/.wrangler/` に保存されるデータ。seed から作り、いつでも作り直せる。
-  - Preview: 本番と同じ Worker の中に、`feat` ブランチごとにできる確認用の環境（Cloudflare の Worker Previews）。D1・KV は `wrangler.jsonc` の `previews` に書いた Preview 用のものを、すべての Preview で共有する。運営のアカウントは作らない。
-  - 本番: `main` に入ったら自動でデプロイする。
-- デプロイは Cloudflare の Git 連携（Workers Builds）で行う。`main` は `npx wrangler deploy`、それ以外のブランチは `npx wrangler preview` を、Cloudflare の側で動かす（私たちは wrangler を打たない）。Worker 名は `machibun-website`。
+  - Preview: 本番と同じ Worker の中にできる確認用の環境（Cloudflare の Worker Previews）。D1・KV は `wrangler.jsonc` の `previews` に書いた Preview 用のものを、すべての Preview で共有する。
+    - 管理用の Preview（固定）: https://preview-machibun-website.yurumachi-yuruyuru.workers.dev/_emdash/admin 。中身の入力とログインはここだけで行う。管理者は user が作った（2026-10-15、パスキー）。
+    - feat ごとの Preview: `https://<ブランチ名>-machibun-website.yurumachi-yuruyuru.workers.dev`。公開ページを確かめる。EmDash のパスキーは URL のホスト名に結び付くので、ここでは管理画面にログインできない。
+  - 本番: `main` に入ったら自動でデプロイする。https://machibun-website.yurumachi-yuruyuru.workers.dev （今は Cloudflare が置いた仮の Worker が出る）。
+- デプロイは Cloudflare の Git 連携（Workers Builds）で行い、Cloudflare の側で wrangler が動く（私たちは打たない）。Worker 名は `machibun-website`。ビルドの設定は1つの Worker に2つまで。
+  - 本番用: `main` を push すると `npx wrangler deploy`。
+  - Preview 用: `main` 以外を push すると `npx wrangler preview`（ブランチ名の Preview）。画面で「プレビュービルドを有効化」をオンにしても作られなかったので、`cf builds triggers create` で作った。
+  - 管理用の Preview は、Preview 用の設定を一時的に `npx wrangler preview --name preview` にして `feat/emdash-site` から1回出し、元に戻した。`main` に取り込んだら、本番用の設定のデプロイのコマンドを `npx wrangler deploy && npx wrangler preview --name preview` にし、`main` を push するたびに管理用の Preview も新しくする。
+- Preview の URL を出すには、Worker の設定で「Preview URLs」をオンにする必要があった（`wrangler.jsonc` の `preview_urls` は本番のデプロイのときにしか効かない）。本番の workers.dev の URL もオンにしてある。
 - 名前に年を入れない。中身は年をまたいで同じ D1 に置くため（ADR 0003）。
 - デプロイ先は、まちぶんの Cloudflare アカウント。`cf` のログインは volume（`cf_config`）に残るので、コンテナを作り直してもログインし直さなくてよい。
 - 画像は R2 ではなく KV（`MEDIA`）に置く（ADR 0004）。置き場所の処理は `site/src/storage/kv.ts`。手元で、上げる・表示する・一覧する・消すを確かめた。
@@ -51,7 +57,7 @@
 
 1. 管理画面を日本語にして、中身の入力・下書き・公開を一通り試す（関門2）。手順と翻訳の数は `docs/notes/emdash-gates.md`。
 2. 出展者の詳細ページ（`/exhibitors/{slug}`）とお知らせのページ（`/notices/{slug}`）を作る。トップページのリンク先がまだ無い。
-3. `feat/emdash-site` の Preview が Preview 用の D1・KV につながるかを確かめる（本番の D1・KV につながるなら、設定を見直す）。Worker `machibun-website` は、Cloudflare の Git 連携で作った（2026-10-15。ルートディレクトリは `/site`）。`main` のビルドは、`site/` がまだ無いので失敗する。画面で「プレビュービルドを有効化」をオンにしても `main` 以外のブランチのビルドの設定ができなかったので、`cf builds triggers create` で作った（`npx wrangler preview`、`main` 以外のブランチ）。
+3. `main` に取り込んだら、本番用のビルドの設定を直し（上の「デプロイ」）、本番の URL を開いてすぐに管理者を作る。空のデータベースでは、最初に開いた人が管理者になる。
 4. デプロイして、CPU の上限（無料プランは 10ms）を超えていないかを Workers Logs で確かめる（関門1。`docs/notes/emdash-gates.md`）。日付と時刻が日本語・日本時間で出るかも見る（手元は Node、本番は workerd で動くため）。
 5. 画像の表示が、Workers の無料枠（10万リクエスト/日）と `IMAGES` の無料枠に収まるかを、Preview で測る（ADR 0004）。
    あわせて、最初の Preview で `/_image` の画像が出るかを確かめる。本番では、画像の変換が同じ Worker の `/_emdash/api/media/file/...` を取りに行くので、手元では起きない失敗がありうる。出なければ、別の手を考える前に、`@emdash-cms/cloudflare` にある `image-endpoint` が何をするものかを先に読む。
