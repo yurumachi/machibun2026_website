@@ -8,20 +8,22 @@
   - 中身の種類（出展者・出演者・出演枠・ステージ・カテゴリ・協賛・お知らせ）は `site/seed/seed.json` に定めた。見本のデータも入っている。
   - トップページ（`site/src/pages/index.astro`）は、モックの CSS（`site/src/styles/`）と画像（`site/public/assets/`）を移し、CMS の中身を出す。キャッチコピー・開催日・会場は HTML に直接書いている。
   - Starter の posts・pages・カテゴリ・タグのページは消した。
-- ブランチは `feat` と `main` だけ。`feat` ブランチで開発し、PR で `main` に取り込む。`develop` は作らない（1人で開発し、`feat` のプレビューで確かめられるため）。いまの作業は `feat/emdash-site`。
+- ブランチは `feat` と `main` だけ。`feat` ブランチで開発し、PR で `main` に取り込む。`develop` は作らない（1人で開発し、`feat` の Preview で確かめられるため）。いまの作業は `feat/emdash-site`。
 - 環境は3つ。データはそれぞれ別で、つながない。
   - 手元（コンテナ）: `site/.wrangler/` に保存されるデータ。seed から作り、いつでも作り直せる。
-  - ステージング: 本番とは別の Worker と D1・KV。`feat` ごとのプレビューと、`main` と同じコードの決まった URL。運営のアカウントは作らず、画面に「ステージング」の帯を出す。
-  - 本番: `main` に入ったら自動でデプロイする Worker と D1・KV。
+  - Preview: 本番と同じ Worker の中に、`feat` ブランチごとにできる確認用の環境（Cloudflare の Worker Previews）。D1・KV は `wrangler.jsonc` の `previews` に書いた Preview 用のものを、すべての Preview で共有する。運営のアカウントは作らない。
+  - 本番: `main` に入ったら自動でデプロイする。
+- デプロイは Cloudflare の Git 連携（Workers Builds）で行う。`main` は `npx wrangler deploy`、それ以外のブランチは `npx wrangler preview` を、Cloudflare の側で動かす（私たちは wrangler を打たない）。Worker 名は `machibun-website`。
+- 名前に年を入れない。中身は年をまたいで同じ D1 に置くため（ADR 0003）。
 - デプロイ先は、まちぶんの Cloudflare アカウント。`cf` のログインは volume（`cf_config`）に残るので、コンテナを作り直してもログインし直さなくてよい。
 - 画像は R2 ではなく KV（`MEDIA`）に置く（ADR 0004）。置き場所の処理は `site/src/storage/kv.ts`。手元で、上げる・表示する・一覧する・消すを確かめた。
-- D1 と KV は `cf` で作り（2026-10-15）、`site/wrangler.jsonc` につないだ。ステージングは `env.staging` に書き、`CLOUDFLARE_ENV=staging` でビルドするとそちらにつながる（ビルドの結果で確かめた）。D1 はアジア太平洋（APAC）に置いた。
+- D1 と KV は `cf` で作り（2026-10-15）、`site/wrangler.jsonc` につないだ。ビルドの結果に、本番と Preview それぞれの ID が入ることを確かめた。D1 はアジア太平洋（APAC）に置いた。
 
-  | | 本番 | ステージング |
+  | | 本番 | Preview |
   |---|---|---|
-  | D1 | `machibun2026`（`4dff514e-9f3f-4ddf-a2d7-273fbce121bc`） | `machibun2026-staging`（`238b67c7-ab67-4305-b6ea-f0f285c2f704`） |
-  | KV `MEDIA` | `machibun2026-media`（`8c115efcc8d74942b5be5e9275f88366`） | `machibun2026-staging-media`（`2ae641097d0d449589fce79a71056d81`） |
-  | KV `SESSION` | `machibun2026-session`（`d9219de9ab9f4f74af67822991ce1aca`） | `machibun2026-staging-session`（`346f84bf0a62489db258a863451895ae`） |
+  | D1 | `machibun`（`c7349d56-5024-47bc-b3aa-905af1664633`） | `machibun-preview`（`9af2f4b3-ccc7-41f6-892b-50434720730d`） |
+  | KV `MEDIA` | `machibun-media`（`8c115efcc8d74942b5be5e9275f88366`） | `machibun-preview-media`（`2ae641097d0d449589fce79a71056d81`） |
+  | KV `SESSION` | `machibun-session`（`d9219de9ab9f4f74af67822991ce1aca`） | `machibun-preview-session`（`346f84bf0a62489db258a863451895ae`） |
 
 ## 手元で動かす
 
@@ -31,6 +33,9 @@
 3. seed を変えたら、`site/.wrangler/` を消して作り直す（seed は空のデータベースにしか入らない）。
 
 ## 分かったこと
+
+- EmDash のパスキーは、URL のホスト名に結び付く。Worker 名・workers.dev のサブドメイン・ドメインを変えると、作ったパスキーではログインできなくなる。本番の URL は、運営のアカウントを作る前に決める。Preview もブランチごとに URL が変わるので、管理画面にログインできるのは管理者を作った Preview だけ。
+- 空のデータベースで最初に管理画面を開いた人が、管理者を作れる（合言葉などは無い）。デプロイしたら、すぐに管理者を作る。
 
 - 参照の項目（カテゴリ・出演者・ステージ）は、一覧の `entry.data` に入らない。一件ずつ `getEmDashReferences` で取っているので、出展者と出演枠の数だけ問い合わせが走る。デプロイして遅いか CPU の上限を超えるなら、カテゴリを select の項目にする、出演枠を出演者の中のくり返し項目にする、などを考える（中身の設計が変わるので user と相談する）。
 - 日時の項目は `Date` ではなく文字列で返る。
@@ -46,10 +51,10 @@
 
 1. 管理画面を日本語にして、中身の入力・下書き・公開を一通り試す（関門2）。手順と翻訳の数は `docs/notes/emdash-gates.md`。
 2. 出展者の詳細ページ（`/exhibitors/{slug}`）とお知らせのページ（`/notices/{slug}`）を作る。トップページのリンク先がまだ無い。
-3. デプロイの方法を決めて Worker を作り、`feat` のプレビューがステージングの D1・KV につながるかを確かめる（本番と同じデータにつながるなら、設定を見直す）。D1 と KV は作ってある。
+3. Cloudflare の Git 連携で Worker `machibun-website` を作り、`feat/emdash-site` の Preview が Preview 用の D1・KV につながるかを確かめる（本番の D1・KV につながるなら、設定を見直す）。
 4. デプロイして、CPU の上限（無料プランは 10ms）を超えていないかを Workers Logs で確かめる（関門1。`docs/notes/emdash-gates.md`）。日付と時刻が日本語・日本時間で出るかも見る（手元は Node、本番は workerd で動くため）。
-5. 画像の表示が、Workers の無料枠（10万リクエスト/日）と `IMAGES` の無料枠に収まるかを、ステージングで測る（ADR 0004）。
-   あわせて、最初のステージングで `/_image` の画像が出るかを確かめる。本番では、画像の変換が同じ Worker の `/_emdash/api/media/file/...` を取りに行くので、手元では起きない失敗がありうる。出なければ、別の手を考える前に、`@emdash-cms/cloudflare` にある `image-endpoint` が何をするものかを先に読む。
+5. 画像の表示が、Workers の無料枠（10万リクエスト/日）と `IMAGES` の無料枠に収まるかを、Preview で測る（ADR 0004）。
+   あわせて、最初の Preview で `/_image` の画像が出るかを確かめる。本番では、画像の変換が同じ Worker の `/_emdash/api/media/file/...` を取りに行くので、手元では起きない失敗がありうる。出なければ、別の手を考える前に、`@emdash-cms/cloudflare` にある `image-endpoint` が何をするものかを先に読む。
 
 ## 決まっていないこと
 

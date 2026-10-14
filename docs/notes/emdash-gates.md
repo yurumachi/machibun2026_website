@@ -45,7 +45,7 @@ EmDash は、CPU と日本語の管理画面という2つの関門を通った�
 
 - `wrangler.jsonc` で Workers Logs（`observability`）を有効にした。デプロイすると、1回のアクセスごとの CPU 時間が、Cloudflare の管理画面の Workers Logs に残る。site-plan に書いた `wrangler tail` の代わりにこれを使う。
 - 無料プランの Workers Logs は、1日 20万件まで残し、3日で消える。試すアクセスの数では足りる。
-- ステージングで、次のページを、それぞれ 20 回ほど開く: トップページ、管理画面の一覧、出展者の編集画面、画像（`/_emdash/api/media/file/...` と `/_image`）。
+- `feat/emdash-site` の Preview で、次のページを、それぞれ 20 回ほど開く: トップページ、管理画面の一覧、出展者の編集画面、画像（`/_emdash/api/media/file/...` と `/_image`）。
 - あわせて、毎分の cron が上限で落ちていないかを見る。
 
 ### 判定の目安

@@ -13,7 +13,7 @@
 - Python もコンテナの中の `uv run` で動かす。
 - Cloudflare の土台（D1・KV・Worker）は `cf` で扱い、wrangler を直接打たない。CMS の中身は MCP で扱う。
 - Worker の設定は `site/wrangler.jsonc` に書く。Astro のアダプターが読むファイルとして使うだけで、wrangler のコマンドは打たない。`cf` 用の `cloudflare.config.ts` には、Astro と EmDash が対応したら移る（ADR 0005）。
-- 本番の D1・KV を直接書き換えない。試すのは手元かステージングで行う。
+- 本番の D1・KV を直接書き換えない。試すのは手元か Preview（feat ブランチの確認用の環境）で行う。
 
 ## git
 
