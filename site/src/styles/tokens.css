@@ -1,0 +1,135 @@
+/* ==========================================================
+   Design Tokens — まちナかぶんかさい（まちぶん）テーマ
+   構造は デジタル庁デザインシステム(DADS) に準拠。
+   文字サイズ・行高・余白・角丸・タップ領域は DADS の値のまま、
+   色だけをまちぶんのテーマカラー（ダーク基調）に差し替えています。
+   構成: 1) Primitive(素の値)  2) Semantic(用途名)
+   色を変えたいときは「Semantic」だけを触れば全体に反映されます。
+   ========================================================== */
+:root {
+  color-scheme: dark;
+
+  /* ---------- 1) Primitive ---------- */
+  /* ブランド（指定のテーマカラー） */
+  --brand-main:   #1a1b20;
+  --brand-accent: #ffffff;
+  --brand-g1: #c7c7c7;   /* グラデーション 0%  */
+  --brand-g2: #e7e7e7;   /* 15% */
+  --brand-g3: #58e6ff;   /* 30% */
+  --brand-g4: #fb65e7;   /* 100% */
+
+  /* メインから派生した面の色（ダーク上の段差用） */
+  --c-surface-1: #24262c;
+  --c-surface-2: #2e3037;
+  --c-line:      #3a3c44;
+
+  /* DADS のグレー（文字・枠線のコントラスト確保用） */
+  --c-gray-536: #767676; /* 暗背景でも 3:1 を満たす枠線 */
+
+  /* DADS の状態色（暗背景用に明るい階調を採用） */
+  --c-red-400:    #ff7171;
+  --c-green-400:  #51b883;
+  --c-yellow-300: #ffd43d; /* フォーカス色（DADS: 変更禁止） */
+  --c-yellow-400: #ffc700;
+  --c-black: #000000;
+
+  /* ---------- 2) Semantic ---------- */
+  --color-bg:        var(--brand-main);
+  --color-bg-subtle: var(--c-surface-1);
+  --color-surface:   var(--c-surface-1);   /* カード・入力欄 */
+  --color-surface-2: var(--c-surface-2);   /* 表の見出し・ホバー */
+
+  --color-text:         var(--brand-accent);
+  --color-text-sub:     var(--brand-g1);
+  --color-text-inverse: var(--brand-main);   /* 白地の上の文字 */
+
+  /* プライマリー = アクセントの白 */
+  --color-primary:        var(--brand-accent);
+  --color-primary-hover:  var(--brand-g2);
+  --color-primary-active: var(--brand-g1);
+  --color-on-primary:     var(--brand-main);
+
+  --color-border:  var(--c-gray-536);
+  --color-divider: var(--c-line);
+
+  /* リンク：シアン、訪問済みはピンク（グラデーションの色を使用） */
+  --color-link:         var(--brand-g3);
+  --color-link-visited: var(--brand-g4);
+  --color-link-active:  var(--brand-accent);
+
+  /* フォーカス：黄（DADS指定色）。暗背景で見えるよう黄の枠線を併用 */
+  --color-focus-bg:      var(--c-yellow-300);
+  --color-focus-text:    var(--c-black);
+
+  /* 状態色 */
+  --color-info:    var(--brand-g3);
+  --color-success: var(--c-green-400);
+  --color-warning: var(--c-yellow-400);
+  --color-error:   var(--c-red-400);
+
+  /* ブランドグラデーション（装飾専用。この上に小さい文字は載せない） */
+  --gradient-brand: linear-gradient(90deg in oklch,
+      var(--brand-g1) 0%,
+      var(--brand-g2) 15%,
+      var(--brand-g3) 30%,
+      var(--brand-g4) 100%);
+  --blob-opacity: 0.55;   /* 0.4 なら白い本文と最悪 4.7:1 だが、チラシの濃さに寄せた。blob の明るい部分に重なる本文は 4.5:1 を割るので、文字は blob に重ねない */
+
+  /* blob ごとの配色（同じ4色の組み合わせ違い。補間は oklch で中間を濁らせない） */
+  --blob-a: linear-gradient(135deg in oklch, var(--brand-g3), var(--brand-g4));
+  --blob-b: linear-gradient(200deg in oklch, var(--brand-g2), var(--brand-g3) 60%);
+  --blob-c: linear-gradient(60deg in oklch, var(--brand-g4), var(--brand-g1));
+
+  /* 動きの量（FUJI ROCK 程度のにぎやかさ） */
+  --motion-scale: 0.5;
+  --drift-x: 9%; --drift-y: -12%; --drift-r: 40deg; --drift-s: 1.15;
+  --sway: 14deg; --bob: 14px;
+
+  /* ---------- タイポグラフィ（DADS） ---------- */
+  --font-sans: "Noto Sans JP", system-ui, -apple-system, "Hiragino Sans", "Yu Gothic", sans-serif;
+  --font-mono: "Noto Sans Mono", ui-monospace, monospace;
+
+  --fw-normal: 400;
+  --fw-bold:   700;
+
+  --fs-48: 3rem;
+  --fs-36: 2.25rem;
+  --fs-32: 2rem;
+  --fs-28: 1.75rem;
+  --fs-24: 1.5rem;
+  --fs-20: 1.25rem;
+  --fs-18: 1.125rem;
+  --fs-16: 1rem;       /* 本文基準 */
+  --fs-14: 0.875rem;   /* フッター等の補足のみ */
+
+  --lh-heading-lg: 1.4;
+  --lh-heading:    1.5;
+  --lh-body:       1.7;
+  --lh-oneline:    1;
+
+  --ls-0: 0;
+  --ls-1: 0.01em;
+  --ls-2: 0.02em;
+
+  /* ---------- 余白（8px基準） ---------- */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-6: 3rem;
+  --space-8: 4rem;
+  --space-12: 6rem;
+
+  /* ---------- 角丸 / レイアウト ---------- */
+  --radius-0: 0;
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 16px;
+
+  --bp-desktop: 768px;
+  --content-max: 1040px;
+  --reading-max: 40em;
+  --page-margin: 1rem;
+
+  --target-min: 44px;
+}

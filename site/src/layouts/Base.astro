@@ -1,0 +1,98 @@
+---
+import { getSiteSettingsWithCacheHint } from "emdash";
+import { EmDashHead, EmDashBodyStart, EmDashBodyEnd } from "emdash/ui";
+import { createPublicPageContext } from "emdash/page";
+import "../styles/tokens.css";
+import "../styles/style.css";
+import "../styles/blobs.css";
+
+interface Props {
+	title?: string;
+	description?: string | null;
+	/** Pass content reference for plugin page contributions on content pages */
+	content?: { collection: string; id: string; slug?: string | null };
+}
+
+const { title, description, content } = Astro.props;
+const { data: settings, cacheHint } = await getSiteSettingsWithCacheHint();
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+
+const siteTitle = settings.title;
+const fullTitle = title ? `${title}｜${siteTitle}` : siteTitle;
+const pageDescription = description ?? settings.tagline;
+
+const pageCtx = createPublicPageContext({
+	Astro,
+	kind: content ? "content" : "custom",
+	pageType: "website",
+	title: fullTitle,
+	pageTitle: title ?? siteTitle,
+	description: pageDescription,
+	content,
+	siteName: siteTitle,
+});
+---
+
+<!doctype html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<title>{fullTitle}</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" />
+		<link rel="preload" as="image" href="/assets/logo.svg" />
+		<EmDashHead page={pageCtx} />
+	</head>
+	<body>
+		<EmDashBodyStart page={pageCtx} />
+		<a class="skip-link" href="#main">本文へ移動</a>
+
+		<header class="site-header">
+			<div class="container site-header__inner">
+				<a class="site-header__logo" href="/"><img src="/assets/logo.svg" alt={siteTitle} width="98" height="47" /></a>
+				<nav class="global-nav" aria-label="メインメニュー">
+					<ul>
+						<li><a href="/#news">お知らせ</a></li>
+						<li><a href="/#exhibitors">出展者</a></li>
+						<li><a href="/#timetable">スケジュール</a></li>
+						<li><a href="/#access">アクセス</a></li>
+					</ul>
+				</nav>
+				<button class="motion-toggle" type="button" aria-pressed="false">動きを止める</button>
+			</div>
+		</header>
+
+		<slot />
+
+		<footer class="site-footer">
+			<div class="container">
+				<ul>
+					<li><a href="https://www.instagram.com/yurumachi_nagaoka/">Instagram（@yurumachi_nagaoka）</a></li>
+				</ul>
+				<small>主催：ゆるまち委員会　&copy; 2026 {siteTitle}</small>
+			</div>
+		</footer>
+
+		<nav class="tab-bar" aria-label="メインメニュー（画面下）">
+			<ul>
+				<li><a href="/#news"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10 21a2 2 0 0 0 4 0"></path></svg>お知らせ</a></li>
+				<li><a href="/#exhibitors"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9l1.5-5h15L21 9"></path><path d="M4 9v11h16V9"></path><path d="M3 9h18"></path><path d="M9 20v-6h6v6"></path></svg>出展者</a></li>
+				<li><a href="/#timetable"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>スケジュール</a></li>
+				<li><a href="/#access"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"></path><circle cx="12" cy="9" r="2.5"></circle></svg>アクセス</a></li>
+			</ul>
+		</nav>
+
+		<script>
+			const root = document.documentElement;
+			const toggle = document.querySelector(".motion-toggle");
+			toggle?.addEventListener("click", () => {
+				const paused = root.toggleAttribute("data-paused");
+				toggle.setAttribute("aria-pressed", String(paused));
+				toggle.textContent = paused ? "動きを再開する" : "動きを止める";
+			});
+		</script>
+		<EmDashBodyEnd page={pageCtx} />
+	</body>
+</html>

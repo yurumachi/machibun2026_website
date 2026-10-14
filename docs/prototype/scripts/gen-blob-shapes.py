@@ -1,6 +1,6 @@
 """blob の形（clip-path: shape()）と変形アニメーションの CSS を生成する。
 
-使い方: docker compose run --rm -w /work dev uv run --no-project python docs/prototype/scripts/gen-blob-shapes.py > docs/prototype/css/blobs.css
+使い方: docker compose run --rm -w /work dev uv run --no-project python docs/prototype/scripts/gen-blob-shapes.py > site/src/styles/blobs.css
 
 各形は箱に対する % の頂点列で定義し、Catmull-Rom 曲線で滑らかにつなぐ。
 頂点ごとの張り（0 で尖る、1 で丸い）で、角の丸みを調整する。

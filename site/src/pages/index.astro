@@ -1,0 +1,198 @@
+---
+import { getEmDashCollection, getEmDashReferences } from "emdash";
+import { Image } from "emdash/ui";
+import Base from "../layouts/Base.astro";
+
+const YEAR = 2026;
+const byYear = { status: "published", where: { year: String(YEAR) } } as const;
+
+const [notices, exhibitors, slots, sponsors] = await Promise.all([
+	getEmDashCollection("notices", { ...byYear, orderBy: { date: "desc" } }),
+	getEmDashCollection("exhibitors", { ...byYear, orderBy: { booth_number: "asc" } }),
+	getEmDashCollection("slots", { ...byYear, orderBy: { starts_at: "asc" } }),
+	getEmDashCollection("sponsors", byYear),
+]);
+
+// ponytail: 参照は一件ずつ取る（出展者と出演枠の数だけ問い合わせが走る）。遅ければ、参照をやめて select や分類に替える
+const refTitle = async (type: string, id: string, field: string) => {
+	const { entries, cacheHint } = await getEmDashReferences<{ title: string }>(type, id, field, { limit: 1 });
+	if (Astro.cache?.enabled && cacheHint) Astro.cache.set(cacheHint);
+	return entries[0]?.data.title;
+};
+const [categoryOf, scheduleRows] = await Promise.all([
+	Promise.all(exhibitors.entries.map((e) => refTitle("exhibitors", e.data.id, "category"))),
+	Promise.all(
+		slots.entries.map(async (s) => ({
+			startsAt: new Date(s.data.starts_at),
+			endsAt: new Date(s.data.ends_at),
+			performer: await refTitle("slots", s.data.id, "performer"),
+			stage: await refTitle("slots", s.data.id, "stage"),
+		})),
+	),
+]);
+if (Astro.cache?.enabled) {
+	for (const r of [notices, exhibitors, slots, sponsors]) Astro.cache.set(r.cacheHint);
+}
+
+const sortedNotices = notices.entries.toSorted((a, b) => Number(b.data.pinned) - Number(a.data.pinned));
+const logoSponsors = sponsors.entries.filter((s) => s.data.logo);
+const nameSponsors = sponsors.entries.filter((s) => !s.data.logo);
+
+const tokyo = { timeZone: "Asia/Tokyo" } as const;
+const isoDate = (d: Date) => d.toLocaleDateString("sv-SE", tokyo);
+const jaDate = (d: Date) => d.toLocaleDateString("ja-JP", { ...tokyo, dateStyle: "long" });
+const hhmm = (d: Date) => d.toLocaleTimeString("ja-JP", { ...tokyo, hour: "2-digit", minute: "2-digit" });
+---
+
+<Base>
+	<main id="main">
+		<section class="hero hero--ticket" aria-labelledby="hero-title">
+			<div class="blob-field" aria-hidden="true"><div class="blob-field__inner">
+				<span class="blob blob--s2 hb-1"></span>
+				<span class="blob blob--b blob--s1 hb-2"></span>
+				<span class="blob blob--c blob--s3 hb-3"></span>
+				<span class="blob blob--s4 blob--extra hb-4"></span>
+				<span class="blob blob--c blob--s5 blob--extra hb-5"></span>
+				<span class="blob blob--b blob--s3 only-wide hb-6"></span>
+				<span class="blob blob--s5 only-wide hb-7"></span>
+			</div></div>
+			<div class="hero-side" aria-hidden="true">
+				<img class="sway-float hero-side--talk" src="/assets/illust/talk.webp" alt="" width="640" height="556" loading="lazy" />
+				<img class="sway-hang hero-side--bulb" src="/assets/illust/bulb-1.webp" alt="" width="284" height="317" loading="lazy" />
+				<img class="sway-float hero-side--balloon" src="/assets/illust/balloon.webp" alt="" width="325" height="407" loading="lazy" />
+				<img class="sway-hang hero-side--garland" src="/assets/illust/bulb-garland.webp" alt="" width="640" height="294" loading="lazy" />
+			</div>
+
+			<div class="container">
+				<div class="ticket">
+					<div class="ticket__main">
+						<img class="linework bob hero-art--cheers" src="/assets/illust/cheers.webp" alt="" width="640" height="447" />
+						<img class="linework sway-hang hide-sm hero-art--garland" src="/assets/illust/garland.webp" alt="" width="529" height="290" />
+						<img class="linework sway-float hero-art--balloons" src="/assets/illust/balloons.webp" alt="" width="553" height="605" />
+						<img class="linework sway-hang hide-sm hero-art--bulb" src="/assets/illust/bulb-2.webp" alt="" width="329" height="295" />
+						<img class="linework bob hide-sm hero-art--market" src="/assets/illust/market.webp" alt="" width="640" height="419" />
+
+						<p class="ticket__tagline"><span>夜のまち、</span><span>みんなが耀く、</span><span>舞台となれ。</span></p>
+						<h1 class="ticket__logo" id="hero-title"><img src="/assets/logo.svg" alt="まちナかぶんかさい" width="490" height="235" /></h1>
+						<p class="ticket__sub">夜のマルシェと<br />まちの踊り場</p>
+					</div>
+
+					<div class="ticket__stub">
+						<p><time datetime="2026-10-03"><span class="ticket__date">10.3<small>sat</small></span></time></p>
+						<p class="ticket__time">16:00–21:00</p>
+						<p class="ticket__place"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"></path></svg>大光銀行駐車場</p>
+						<p class="ticket__address">新潟県長岡市東坂之上町2-2-4</p>
+						<div class="ticket__actions">
+							<a class="btn" href="#exhibitors">出展者を見る</a>
+							<a class="btn btn--secondary" href="#access">会場へのアクセス</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section" id="news">
+			<div class="container">
+				<h2 class="section__title">お知らせ</h2>
+				<ul class="news">
+					{sortedNotices.map((n) => (
+						<li>
+							<time datetime={isoDate(new Date(n.data.date))}>{jaDate(new Date(n.data.date))}</time>
+							<span>{n.data.pinned && <span class="label">重要</span>}</span>
+							<a href={`/notices/${n.id}`}>{n.data.title}</a>
+						</li>
+					))}
+				</ul>
+			</div>
+		</section>
+
+		<section class="section section--subtle section--wave" id="exhibitors">
+			<div class="container">
+				<h2 class="section__title">出展者</h2>
+				<p class="section__lead">{exhibitors.entries.length}組が出展します。</p>
+				<ul class="exhibitors">
+					{exhibitors.entries.map((e, i) => {
+						const photo = e.data.photos?.[0]?.image;
+						const category = categoryOf[i];
+						return (
+							<li class="card card--fun exhibitor">
+								{photo ? (
+									<Image class="exhibitor__photo" image={{ ...photo, alt: "" }} width={800} height={600} />
+								) : (
+									<div class="exhibitor__photo exhibitor__photo--none" aria-hidden="true"></div>
+								)}
+								<div class="exhibitor__body">
+									<span>{category && <span class="label">{category}</span>}</span>
+									<h3 class="exhibitor__name"><a href={`/exhibitors/${e.id}`}>{e.data.title}</a></h3>
+									{e.data.catch && <p class="exhibitor__catch">{e.data.catch}</p>}
+								</div>
+							</li>
+						);
+					})}
+				</ul>
+			</div>
+		</section>
+
+		<section class="section section--blobbed" id="timetable">
+			<div class="container">
+				<span class="blob blob--b blob--s1 blob--grow" aria-hidden="true" style="width:min(26rem,70vw);height:min(20rem,56vw);right:-8rem;top:2rem"></span>
+				<span class="blob blob--s4 blob--grow blob--extra" aria-hidden="true" style="width:16rem;height:14rem;left:-6rem;bottom:0"></span>
+				<h2 class="section__title">スケジュール</h2>
+				<div class="table-wrap">
+					<table>
+						<caption class="sr-only">ステージのスケジュール</caption>
+						<thead><tr><th scope="col">時間</th><th scope="col">出演者</th><th scope="col">ステージ</th></tr></thead>
+						<tbody>
+							{scheduleRows.map((s) => (
+								<tr>
+									<th scope="row"><time datetime={s.startsAt.toISOString()}>{hhmm(s.startsAt)}</time>–<time datetime={s.endsAt.toISOString()}>{hhmm(s.endsAt)}</time></th>
+									<td>{s.performer}</td>
+									<td>{s.stage}</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</section>
+
+		<section class="section section--subtle section--wave" id="sponsors">
+			<div class="container">
+				<h2 class="section__title">協賛</h2>
+				<div class="sponsors">
+					{logoSponsors.length > 0 && (
+						<ul class="logo-grid logo-grid--m">
+							{logoSponsors.map((s) => {
+								const logo = <Image image={{ ...s.data.logo!, alt: s.data.title }} />;
+								return <li>{s.data.url ? <a href={s.data.url}>{logo}</a> : logo}</li>;
+							})}
+						</ul>
+					)}
+					{nameSponsors.length > 0 && (
+						<ul class="sponsor-names">
+							{nameSponsors.map((s) => <li>{s.data.url ? <a href={s.data.url}>{s.data.title}</a> : s.data.title}</li>)}
+						</ul>
+					)}
+				</div>
+			</div>
+		</section>
+
+		<section class="section" id="access">
+			<div class="container">
+				<h2 class="section__title">開催情報・アクセス</h2>
+				<div class="table-wrap">
+					<table>
+						<caption class="sr-only">開催情報</caption>
+						<tbody>
+							<tr><th scope="row">日時</th><td>2026年10月3日（土）16:00〜21:00</td></tr>
+							<tr><th scope="row">会場</th><td>大光銀行駐車場（新潟県長岡市東坂之上町2-2-4）<br /><a href="https://maps.google.com/?q=新潟県長岡市東坂之上町2-2-4">Google マップで会場を開く</a></td></tr>
+							<tr><th scope="row">アクセス</th><td>JR長岡駅 大手口から徒歩5分</td></tr>
+							<tr><th scope="row">入場</th><td>無料</td></tr>
+							<tr><th scope="row">雨天時</th><td>小雨決行。荒天の場合は前日18時までにお知らせでお伝えします</td></tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</section>
+	</main>
+</Base>
