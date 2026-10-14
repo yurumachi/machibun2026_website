@@ -51,7 +51,7 @@
 
 1. 管理画面を日本語にして、中身の入力・下書き・公開を一通り試す（関門2）。手順と翻訳の数は `docs/notes/emdash-gates.md`。
 2. 出展者の詳細ページ（`/exhibitors/{slug}`）とお知らせのページ（`/notices/{slug}`）を作る。トップページのリンク先がまだ無い。
-3. Cloudflare の Git 連携で Worker `machibun-website` を作り、`feat/emdash-site` の Preview が Preview 用の D1・KV につながるかを確かめる（本番の D1・KV につながるなら、設定を見直す）。
+3. `feat/emdash-site` の Preview が Preview 用の D1・KV につながるかを確かめる（本番の D1・KV につながるなら、設定を見直す）。Worker `machibun-website` は、Cloudflare の Git 連携で作った（2026-10-15。ルートディレクトリは `/site`）。`main` のビルドは、`site/` がまだ無いので失敗する。
 4. デプロイして、CPU の上限（無料プランは 10ms）を超えていないかを Workers Logs で確かめる（関門1。`docs/notes/emdash-gates.md`）。日付と時刻が日本語・日本時間で出るかも見る（手元は Node、本番は workerd で動くため）。
 5. 画像の表示が、Workers の無料枠（10万リクエスト/日）と `IMAGES` の無料枠に収まるかを、Preview で測る（ADR 0004）。
    あわせて、最初の Preview で `/_image` の画像が出るかを確かめる。本番では、画像の変換が同じ Worker の `/_emdash/api/media/file/...` を取りに行くので、手元では起きない失敗がありうる。出なければ、別の手を考える前に、`@emdash-cms/cloudflare` にある `image-endpoint` が何をするものかを先に読む。
