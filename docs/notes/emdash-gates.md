@@ -99,7 +99,7 @@ EmDash は、CPU と日本語の管理画面という2つの関門を通った�
 
 - ページのキャッシュ: `@astrojs/cloudflare` の `cacheCloudflare()` と、Workers Caching（`wrangler.jsonc` の `cache`）をつないだ（2026-10-15）。トップページは `Cloudflare-CDN-Cache-Control: public, max-age=300` を返すようになったが、Preview ではキャッシュから返らず、毎回 Worker が動いた（`Cf-Cache-Status` が無く、`Cloudflare-CDN-Cache-Control` も消されずに外まで届く）。本番では、同じ設定で `Cf-Cache-Status: HIT` が返った。
   - Preview で効かないのは、`wrangler preview` の不具合（cloudflare/workers-sdk#16218、2026-10-12 から未解決）。Cloudflare の文書は「Preview も本番とは別にキャッシュする」と書いている。wrangler は、本番に上げるときはキャッシュの設定を `cache_options` という名前で送るが、Preview を作るときは `cache` という名前で送り、Preview では設定が残らない。`dist/server/wrangler.json` には `previews.cache` が入っていて、ビルドの wrangler（4.150.0）も送っているので、こちらの設定の誤りではない。
-  - 直るまで、キャッシュにかかわる動き（公開したときに消えるか、ログインしたときに `no-store` になるか）は、Preview では確かめられない。wrangler が直ったら、`site/package.json` の wrangler を上げる。
+  - 直るまで、キャッシュにかかわる動き（公開したときに消えるか、ログインしたときに `no-store` になるか）は、Preview では確かめられない。wrangler が直ったら、`cms/package.json` の wrangler を上げる。
   - キャッシュを有効にすると、静的なファイルへのアクセスも Workers のリクエスト数（無料は1日 10万）に数えられる。
   - Preview はそれぞれ別のキャッシュを持つ。管理用の Preview で公開しても、消えるのはその Preview のキャッシュだけで、feat ごとの Preview は最長 5 分古いまま出る。本番は管理画面と公開ページが同じなので、この問題は無い。
   - キャッシュから返っても、キャッシュに無いとき（初めてのアクセス、公開の直後、5 分ごと）は今と同じ CPU 時間がかかる。上限を下回るわけではない。

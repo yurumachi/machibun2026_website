@@ -6,7 +6,7 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 
 | 項目 | 決まったこと |
 |---|---|
-| フォルダ | `cms/`（EmDash。いまの `site/` の名前を変える）と `web/`（公開サイト、Astro の静的なサイト）を同じ repo に置く |
+| フォルダ | `cms/`（EmDash。2026-10-16 に `site/` から名前を変えた）と `web/`（公開サイト、Astro の静的なサイト）を同じ repo に置く |
 | Worker | いまの `machibun-website` の名前を `machibun-cms` に変える。公開サイト用に `machibun-website` を新しく作る（静的なファイルだけ）。パスキーはホスト名に結び付くので、管理者は作り直す |
 | 中身の受け渡し | `web/` のビルドで、CMS の REST API を読むだけの API token（`content:read`・`media:read`）で読む。`web/` の Preview は CMS の Preview を、本番は CMS の本番を読む。token も分ける |
 | ビルドし直すきっかけ | 公開・公開の取り消し・削除、公開中のものの保存があると、`cms/` のプラグインのフックが `web/` の Deploy Hook を呼ぶ。下書きの保存では呼ばない。コードの変更では、ビルドの設定の `path-includes` で `cms/**`・`web/**` ごとに絞る |
@@ -18,10 +18,8 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 
 ## 次にやること
 
-実装は新しいセッションで始める。
-
-1. `site/` を `cms/` に名前を変える。`compose.yaml` の作業ディレクトリ、AGENTS.md、この HANDOVER、`.gitignore` などの `site/` を直す。`cms/wrangler.jsonc` の cron を `0 * * * *` にする。`name` はまだ変えない（Worker の名前を変えるときに一緒に変える）。
-2. `web/` を作る。いまのトップページ（`site/src/pages/index.astro`）、CSS（`site/src/styles/`）、画像（`site/public/assets/`）を移し、REST API から読む形にする。手元の CMS を読んでビルドが通るところまで作る。読み方は emdash-gates.md の「EmDash を入力の場所だけにし」の節にある。写真の項目の形は、まだ確かめていない。
+1. （済み、2026-10-16）`site/` を `cms/` に名前を変え、cron を `0 * * * *` にした。`cms/wrangler.jsonc` の `name` はまだ変えていない（Worker の名前を変えるときに一緒に変える）。Workers Builds のビルドの設定の root はまだ `site` を見ているので、4 で root を直すまで push しない。
+2. `web/` を作る。いまのトップページ（`cms/src/pages/index.astro`）、CSS（`cms/src/styles/`）、画像（`cms/public/assets/`）を移し、REST API から読む形にする。手元の CMS を読んでビルドが通るところまで作る。読み方は emdash-gates.md の「EmDash を入力の場所だけにし」の節にある。写真の項目の形は、まだ確かめていない。
 3. `cms/` から公開ページを消し、フックのプラグイン（Deploy Hook を呼ぶ）を足す。Deploy Hook の URL は secret に置く。
 4. Cloudflare の作業。**どれも、する前に user に聞く。**
    - Worker `machibun-website` の名前を `machibun-cms` に変え、同時に `cms/wrangler.jsonc` の `name` も変える（変えないと、次のビルドで `machibun-website` がもう一度作られる）。ビルドの設定の root を `cms` にする。
@@ -36,14 +34,14 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 
 - ブランチは `feat` と `main` だけ。いまの作業は `feat/emdash-site`。`main` は保護されていて、PR で取り込む。
 - 開発は Docker のコンテナで行う（Node 22・pnpm 11.9.0・uv）。ホストには Node を入れない。
-- EmDash のサイトは、まだ `site/` にあり、公開ページも EmDash が組み立てている。
-  - 中身の種類は `site/seed/seed.json`。見本のデータも入っている。
-  - トップページは `site/src/pages/index.astro`。キャッチコピー・開催日・会場は HTML に直接書いている。
+- EmDash は `cms/` にある（2026-10-16 に `site/` から名前を変えた）。公開ページは、まだ EmDash が組み立てている。
+  - 中身の種類は `cms/seed/seed.json`。見本のデータも入っている。
+  - トップページは `cms/src/pages/index.astro`。キャッチコピー・開催日・会場は HTML に直接書いている。
   - トップページは Cloudflare のキャッシュ（`routeRules` の `maxAge: 300`）から返す。本番で `HIT` を確かめた。分けたら、このキャッシュの設定は消す。
-- 画像は KV（`MEDIA`）に置く（ADR 0004）。置き場所の処理は `site/src/storage/kv.ts`。
-- Worker の設定は `site/wrangler.jsonc`（ADR 0005）。
+- 画像は KV（`MEDIA`）に置く（ADR 0004）。置き場所の処理は `cms/src/storage/kv.ts`。
+- Worker の設定は `cms/wrangler.jsonc`（ADR 0005）。
 - 環境は3つで、データはつながない。
-  - 手元（コンテナ）: `site/.wrangler/` に保存する。seed から作り、いつでも作り直せる。
+  - 手元（コンテナ）: `cms/.wrangler/` に保存する。seed から作り、いつでも作り直せる。
   - Preview: Cloudflare の Worker Previews。D1・KV は `wrangler.jsonc` の `previews` に書いた Preview 用のものを、すべての Preview で共有する。
     - 管理用の Preview（固定）: https://preview-machibun-website.yurumachi-yuruyuru.workers.dev/_emdash/admin 。管理者は user が作った（2026-10-15、パスキー）。Worker の名前を変えると URL が変わり、作り直しになる。
     - feat ごとの Preview: `https://<ブランチ名>-machibun-website.yurumachi-yuruyuru.workers.dev`。
@@ -66,7 +64,7 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 
 1. `docker compose up` で開き、http://localhost:4321 を見る。
 2. http://localhost:4321/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin を開くと、見本のデータが入り、開発用の管理者でログインできる。
-3. seed を変えたら、`site/.wrangler/` を消して作り直す（seed は空のデータベースにしか入らない）。
+3. seed を変えたら、`cms/.wrangler/` を消して作り直す（seed は空のデータベースにしか入らない）。
 4. 開発サーバーが動いているときに、別のコンテナで `pnpm build` を打たない。共有している `node_modules/.vite` が書き換わり、開発サーバーが 500 を返す（`docker compose restart dev` で直る）。ビルドを試すときは、`/tmp` にコピーして `pnpm install --offline` してから打つ。
 
 ## 分かったこと
@@ -78,8 +76,8 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 - cron は、予約した公開・掃除（1時間に1回）・プラグインの保存場所の索引作り（起動して最初の1回）を動かす。索引は cron でしか作られないので、編集用の鍵や連絡先のプラグインを作ったら、cron を止めない。
 - 日時の項目は `Date` ではなく文字列で返る。
 - `@astrojs/cloudflare` は、画像の変換に `IMAGES`、セッションに KV の `SESSION` を使う。
-- `site/` で `cf deploy` を打たない（`wrangler.jsonc` だけだと、`cf` が `astro.config.mjs` を書き換えようとする。ADR 0005）。
-- Workers Logs の集計は `site/.wrangler/cpu.mjs`（gitignore されている）。`cf o11y telemetry query --body` の結果を `/tmp/ev.json` に置いて、`node .wrangler/cpu.mjs` で集計する。
+- `cms/` で `cf deploy` を打たない（`wrangler.jsonc` だけだと、`cf` が `astro.config.mjs` を書き換えようとする。ADR 0005）。
+- Workers Logs の集計は `cms/.wrangler/cpu.mjs`（gitignore されている）。`cf o11y telemetry query --body` の結果を `/tmp/ev.json` に置いて、`node .wrangler/cpu.mjs` で集計する。
 
 ## 決まっていないこと
 
