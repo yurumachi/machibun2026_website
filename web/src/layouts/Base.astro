@@ -1,36 +1,14 @@
 ---
-import { getSiteSettingsWithCacheHint } from "emdash";
-import { EmDashHead, EmDashBodyStart, EmDashBodyEnd } from "emdash/ui";
-import { createPublicPageContext } from "emdash/page";
 import "../styles/tokens.css";
 import "../styles/style.css";
 import "../styles/blobs.css";
 
 interface Props {
 	title?: string;
-	description?: string | null;
-	/** Pass content reference for plugin page contributions on content pages */
-	content?: { collection: string; id: string; slug?: string | null };
 }
 
-const { title, description, content } = Astro.props;
-const { data: settings, cacheHint } = await getSiteSettingsWithCacheHint();
-if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
-
-const siteTitle = settings.title;
-const fullTitle = title ? `${title}｜${siteTitle}` : siteTitle;
-const pageDescription = description ?? settings.tagline;
-
-const pageCtx = createPublicPageContext({
-	Astro,
-	kind: content ? "content" : "custom",
-	pageType: "website",
-	title: fullTitle,
-	pageTitle: title ?? siteTitle,
-	description: pageDescription,
-	content,
-	siteName: siteTitle,
-});
+const siteTitle = "まちナかぶんかさい";
+const fullTitle = Astro.props.title ? `${Astro.props.title}｜${siteTitle}` : siteTitle;
 ---
 
 <!doctype html>
@@ -39,14 +17,13 @@ const pageCtx = createPublicPageContext({
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 		<title>{fullTitle}</title>
+		<meta name="description" content="夜のマルシェとまちの踊り場。2026年10月3日（土）16:00〜21:00、長岡の大光銀行駐車場で開く、まちなかの文化祭。" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" />
 		<link rel="preload" as="image" href="/assets/logo.svg" />
-		<EmDashHead page={pageCtx} />
 	</head>
 	<body>
-		<EmDashBodyStart page={pageCtx} />
 		<a class="skip-link" href="#main">本文へ移動</a>
 
 		<header class="site-header">
@@ -93,6 +70,5 @@ const pageCtx = createPublicPageContext({
 				toggle.textContent = paused ? "動きを再開する" : "動きを止める";
 			});
 		</script>
-		<EmDashBodyEnd page={pageCtx} />
 	</body>
 </html>

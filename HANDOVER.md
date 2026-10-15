@@ -19,7 +19,11 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 ## 次にやること
 
 1. （済み、2026-10-16）`site/` を `cms/` に名前を変え、cron を `0 * * * *` にした。`cms/wrangler.jsonc` の `name` はまだ変えていない（Worker の名前を変えるときに一緒に変える）。Workers Builds のビルドの設定の root はまだ `site` を見ているので、4 で root を直すまで push しない。
-2. `web/` を作る。いまのトップページ（`cms/src/pages/index.astro`）、CSS（`cms/src/styles/`）、画像（`cms/public/assets/`）を移し、REST API から読む形にする。手元の CMS を読んでビルドが通るところまで作る。読み方は emdash-gates.md の「EmDash を入力の場所だけにし」の節にある。写真の項目の形は、まだ確かめていない。
+2. （済み、2026-10-16）`web/` を作った。トップページ・404・レイアウト・CSS・画像を `cms/` から移し、REST API から読む形にした（`web/src/lib/cms.ts`）。手元の CMS を読んでビルドが通り、写真は `/_astro/` の webp に縮まる（2.27MB が 57〜169KB）。
+   - 手元のビルド: `web/.env` に `CMS_URL=http://localhost:4321` と、手元の管理者で作った読むだけの token（`CMS_TOKEN`）を置く。token は `POST /_emdash/api/admin/api-tokens`（`{"name":"web-build-read","scopes":["content:read","media:read"]}`）で作る。
+   - 一件を取る API（`{collection}/{id}`）は使わない。API token は管理者しか作れず、管理者として読むので、下書きの名前や、公開前に選び直した参照が返る（手元で確かめた）。一覧（`status=published`）は公開中の版を返す。参照は `{collection}/{id}/references/{relation}/children` で取り、参照先の公開済みの一覧と照らして、未公開のものを除く。
+   - REST API は、索引の無い項目では並べ替えられない（`Custom fields must be indexed before sorting`）。並べ替えは `web/` の側で行う。
+   - ビルドのたびに CMS の Worker に、一覧 7 回と、出展者の数 + 出演枠の数 × 2 回の GET が届く。1回ごとの CPU は測っていない。Cloudflare に出したら Workers Logs で見る。
 3. `cms/` から公開ページを消し、フックのプラグイン（Deploy Hook を呼ぶ）を足す。Deploy Hook の URL は secret に置く。
 4. Cloudflare の作業。**どれも、する前に user に聞く。**
    - Worker `machibun-website` の名前を `machibun-cms` に変え、同時に `cms/wrangler.jsonc` の `name` も変える（変えないと、次のビルドで `machibun-website` がもう一度作られる）。ビルドの設定の root を `cms` にする。
@@ -34,7 +38,7 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 
 - ブランチは `feat` と `main` だけ。いまの作業は `feat/emdash-site`。`main` は保護されていて、PR で取り込む。
 - 開発は Docker のコンテナで行う（Node 22・pnpm 11.9.0・uv）。ホストには Node を入れない。
-- EmDash は `cms/` にある（2026-10-16 に `site/` から名前を変えた）。公開ページは、まだ EmDash が組み立てている。
+- EmDash は `cms/` にある（2026-10-16 に `site/` から名前を変えた）。公開ページは `web/` に移した（段2）。`cms/` の公開ページのキャッシュの設定（`routeRules`・`cache`）は、段3で消す。
   - 中身の種類は `cms/seed/seed.json`。見本のデータも入っている。
   - トップページは `cms/src/pages/index.astro`。キャッチコピー・開催日・会場は HTML に直接書いている。
   - トップページは Cloudflare のキャッシュ（`routeRules` の `maxAge: 300`）から返す。本番で `HIT` を確かめた。分けたら、このキャッシュの設定は消す。
