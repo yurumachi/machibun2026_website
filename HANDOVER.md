@@ -1,29 +1,58 @@
-# 引き継ぎ: EmDash の試作
+# 引き継ぎ: 管理画面と公開サイトを分ける
+
+## 決まったこと（2026-10-16）
+
+EmDash を入力の場所（管理画面と編集用の鍵のフォーム）にだけ使い、公開サイトはビルドで作った静的なファイルで配る（ADR 0006）。CPU の上限（無料プランで 10ms）のため。測った結果は `docs/notes/emdash-gates.md`。
+
+| 項目 | 決まったこと |
+|---|---|
+| フォルダ | `cms/`（EmDash。いまの `site/` の名前を変える）と `web/`（公開サイト、Astro の静的なサイト）を同じ repo に置く |
+| Worker | いまの `machibun-website` の名前を `machibun-cms` に変える。公開サイト用に `machibun-website` を新しく作る（静的なファイルだけ）。パスキーはホスト名に結び付くので、管理者は作り直す |
+| 中身の受け渡し | `web/` のビルドで、CMS の REST API を読むだけの API token（`content:read`・`media:read`）で読む。`web/` の Preview は CMS の Preview を、本番は CMS の本番を読む。token も分ける |
+| ビルドし直すきっかけ | 公開・公開の取り消し・削除、公開中のものの保存があると、`cms/` のプラグインのフックが `web/` の Deploy Hook を呼ぶ。下書きの保存では呼ばない。コードの変更では、ビルドの設定の `path-includes` で `cms/**`・`web/**` ごとに絞る |
+| 写真 | 元は KV のまま（ADR 0004）。`web/` のビルドで取ってきて縮め、公開サイトから配る |
+| 下書きのプレビュー | 作らない。公開してから直すことが多いと分かったら考える |
+| cron | 1時間ごと（`0 * * * *`）。予約した公開は使わない。使うときは 15 分ごとにする |
+| 関門1 | 管理画面と編集用の鍵のフォームが Error 1102 で止まらないかで判断し、関門2と一緒に確かめる |
+| 言葉 | 「公開サイト」「管理画面」を GLOSSARY に足した |
+
+## 次にやること
+
+実装は新しいセッションで始める。
+
+1. `site/` を `cms/` に名前を変える。`compose.yaml` の作業ディレクトリ、AGENTS.md、この HANDOVER、`.gitignore` などの `site/` を直す。`cms/wrangler.jsonc` の cron を `0 * * * *` にする。`name` はまだ変えない（Worker の名前を変えるときに一緒に変える）。
+2. `web/` を作る。いまのトップページ（`site/src/pages/index.astro`）、CSS（`site/src/styles/`）、画像（`site/public/assets/`）を移し、REST API から読む形にする。手元の CMS を読んでビルドが通るところまで作る。読み方は emdash-gates.md の「EmDash を入力の場所だけにし」の節にある。写真の項目の形は、まだ確かめていない。
+3. `cms/` から公開ページを消し、フックのプラグイン（Deploy Hook を呼ぶ）を足す。Deploy Hook の URL は secret に置く。
+4. Cloudflare の作業。**どれも、する前に user に聞く。**
+   - Worker `machibun-website` の名前を `machibun-cms` に変え、同時に `cms/wrangler.jsonc` の `name` も変える（変えないと、次のビルドで `machibun-website` がもう一度作られる）。ビルドの設定の root を `cms` にする。
+   - 公開サイトの Worker `machibun-website` と、ビルドの設定（本番・Preview、root は `web`）を作る。
+   - Deploy Hook と、環境ごとの API token を作る。
+   - 本番用のビルドの設定（`f5bb4f2d-8eca-4204-9909-92f321b036be`）の `branch_includes` が、一時的に `["feat/emdash-site"]` のままになっている。`["main"]` に戻す。
+5. 管理用の Preview（`preview-machibun-cms...`）で管理者を作り直し、関門2を user と学生で試す（手順は emdash-gates.md）。
+6. 出展者の詳細ページとお知らせのページを `web/` に作る。
+7. PageSpeed（本番、モバイル 59 点）で出た、フォントと画像の重さを直す。Google Fonts の Noto Sans JP（CSS 60KB、フォント 720KB）が表示を止めている。イラストが表示の大きさより大きい。
 
 ## いまの状態
 
-- デザインのモック（`docs/prototype/mock/`）と、CMS に載せる中身の設計（`docs/content-model.md`・`GLOSSARY.md`・`docs/adr/`）までできている。
-- 開発は Docker のコンテナで行う。`Dockerfile` と `compose.yaml` は用意済みで、Node 22・pnpm 11.9.0（`site/package.json` の `packageManager` に合わせた）・uv（Python 3.13）が入る。ホストには Node を入れない。
-- EmDash のサイトは `site/` にある（Cloudflare 向けの Starter から作った）。`cf` は `site/` の devDependencies に入っている。
-  - 中身の種類（出展者・出演者・出演枠・ステージ・カテゴリ・協賛・お知らせ）は `site/seed/seed.json` に定めた。見本のデータも入っている。
-  - トップページ（`site/src/pages/index.astro`）は、モックの CSS（`site/src/styles/`）と画像（`site/public/assets/`）を移し、CMS の中身を出す。キャッチコピー・開催日・会場は HTML に直接書いている。
-  - Starter の posts・pages・カテゴリ・タグのページは消した。
-- ブランチは `feat` と `main` だけ。`feat` ブランチで開発し、PR で `main` に取り込む。`develop` は作らない（1人で開発し、`feat` の Preview で確かめられるため）。いまの作業は `feat/emdash-site`。
-- 環境は3つ。データはそれぞれ別で、つながない。
-  - 手元（コンテナ）: `site/.wrangler/` に保存されるデータ。seed から作り、いつでも作り直せる。
-  - Preview: 本番と同じ Worker の中にできる確認用の環境（Cloudflare の Worker Previews）。D1・KV は `wrangler.jsonc` の `previews` に書いた Preview 用のものを、すべての Preview で共有する。
-    - 管理用の Preview（固定）: https://preview-machibun-website.yurumachi-yuruyuru.workers.dev/_emdash/admin 。中身の入力とログインはここだけで行う。管理者は user が作った（2026-10-15、パスキー）。
-    - feat ごとの Preview: `https://<ブランチ名>-machibun-website.yurumachi-yuruyuru.workers.dev`。公開ページを確かめる。EmDash のパスキーは URL のホスト名に結び付くので、ここでは管理画面にログインできない。
-  - 本番: `main` に入ったら自動でデプロイする。https://machibun-website.yurumachi-yuruyuru.workers.dev （今は Cloudflare が置いた仮の Worker が出る）。
-- デプロイは Cloudflare の Git 連携（Workers Builds）で行い、Cloudflare の側で wrangler が動く（私たちは打たない）。Worker 名は `machibun-website`。ビルドの設定は1つの Worker に2つまで。
-  - 本番用: `main` を push すると `npx wrangler deploy`。
-  - Preview 用: `main` 以外を push すると `npx wrangler preview`（ブランチ名の Preview）。画面で「プレビュービルドを有効化」をオンにしても作られなかったので、`cf builds triggers create` で作った。
-  - 管理用の Preview は、Preview 用の設定を一時的に `npx wrangler preview --name preview` にして `feat/emdash-site` から1回出し、元に戻した。`main` に取り込んだら、本番用の設定のデプロイのコマンドを `npx wrangler deploy && npx wrangler preview --name preview` にし、`main` を push するたびに管理用の Preview も新しくする。
-- Preview の URL を出すには、Worker の設定で「Preview URLs」をオンにする必要があった（`wrangler.jsonc` の `preview_urls` は本番のデプロイのときにしか効かない）。本番の workers.dev の URL もオンにしてある。
-- 名前に年を入れない。中身は年をまたいで同じ D1 に置くため（ADR 0003）。
-- デプロイ先は、まちぶんの Cloudflare アカウント。`cf` のログインは volume（`cf_config`）に残るので、コンテナを作り直してもログインし直さなくてよい。
-- 画像は R2 ではなく KV（`MEDIA`）に置く（ADR 0004）。置き場所の処理は `site/src/storage/kv.ts`。手元で、上げる・表示する・一覧する・消すを確かめた。
-- D1 と KV は `cf` で作り（2026-10-15）、`site/wrangler.jsonc` につないだ。ビルドの結果に、本番と Preview それぞれの ID が入ることを確かめた。D1 はアジア太平洋（APAC）に置いた。
+- ブランチは `feat` と `main` だけ。いまの作業は `feat/emdash-site`。`main` は保護されていて、PR で取り込む。
+- 開発は Docker のコンテナで行う（Node 22・pnpm 11.9.0・uv）。ホストには Node を入れない。
+- EmDash のサイトは、まだ `site/` にあり、公開ページも EmDash が組み立てている。
+  - 中身の種類は `site/seed/seed.json`。見本のデータも入っている。
+  - トップページは `site/src/pages/index.astro`。キャッチコピー・開催日・会場は HTML に直接書いている。
+  - トップページは Cloudflare のキャッシュ（`routeRules` の `maxAge: 300`）から返す。本番で `HIT` を確かめた。分けたら、このキャッシュの設定は消す。
+- 画像は KV（`MEDIA`）に置く（ADR 0004）。置き場所の処理は `site/src/storage/kv.ts`。
+- Worker の設定は `site/wrangler.jsonc`（ADR 0005）。
+- 環境は3つで、データはつながない。
+  - 手元（コンテナ）: `site/.wrangler/` に保存する。seed から作り、いつでも作り直せる。
+  - Preview: Cloudflare の Worker Previews。D1・KV は `wrangler.jsonc` の `previews` に書いた Preview 用のものを、すべての Preview で共有する。
+    - 管理用の Preview（固定）: https://preview-machibun-website.yurumachi-yuruyuru.workers.dev/_emdash/admin 。管理者は user が作った（2026-10-15、パスキー）。Worker の名前を変えると URL が変わり、作り直しになる。
+    - feat ごとの Preview: `https://<ブランチ名>-machibun-website.yurumachi-yuruyuru.workers.dev`。
+  - 本番: https://machibun-website.yurumachi-yuruyuru.workers.dev 。D1 は setup 済み（見本と試しのデータだけ）。
+- デプロイは Cloudflare の Git 連携（Workers Builds）で行い、Cloudflare の側で wrangler が動く（私たちは打たない）。ビルドの設定は1つの Worker に2つまで。
+  - 本番用（`f5bb4f2d-8eca-4204-9909-92f321b036be`）: `npx wrangler deploy`。
+  - Preview 用（`7346b588-71ae-4cc3-a389-82df061055f2`）: `main` 以外を push すると `npx wrangler preview`。画面からは作れず、`cf builds triggers create` で作った。
+  - 管理用の Preview は、Preview 用の設定を一時的に `npx wrangler preview --name preview` にして1回出し、元に戻した。
+- D1 と KV（アジア太平洋に置いた）:
 
   | | 本番 | Preview |
   |---|---|---|
@@ -31,38 +60,30 @@
   | KV `MEDIA` | `machibun-media`（`8c115efcc8d74942b5be5e9275f88366`） | `machibun-preview-media`（`2ae641097d0d449589fce79a71056d81`） |
   | KV `SESSION` | `machibun-session`（`d9219de9ab9f4f74af67822991ce1aca`） | `machibun-preview-session`（`346f84bf0a62489db258a863451895ae`） |
 
+- `cf` のログインは volume（`cf_config`）に残る。
+
 ## 手元で動かす
 
 1. `docker compose up` で開き、http://localhost:4321 を見る。
-2. 初めて開いたときは中身の種類だけが入り、見本のデータは入らない。
-   http://localhost:4321/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin を開くと、見本のデータが入り、開発用の管理者でログインできる。
+2. http://localhost:4321/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin を開くと、見本のデータが入り、開発用の管理者でログインできる。
 3. seed を変えたら、`site/.wrangler/` を消して作り直す（seed は空のデータベースにしか入らない）。
+4. 開発サーバーが動いているときに、別のコンテナで `pnpm build` を打たない。共有している `node_modules/.vite` が書き換わり、開発サーバーが 500 を返す（`docker compose restart dev` で直る）。ビルドを試すときは、`/tmp` にコピーして `pnpm install --offline` してから打つ。
 
 ## 分かったこと
 
-- EmDash のパスキーは、URL のホスト名に結び付く。Worker 名・workers.dev のサブドメイン・ドメインを変えると、作ったパスキーではログインできなくなる。本番の URL は、運営のアカウントを作る前に決める。Preview もブランチごとに URL が変わるので、管理画面にログインできるのは管理者を作った Preview だけ。
-- 空のデータベースで最初に管理画面を開いた人が、管理者を作れる（合言葉などは無い）。デプロイしたら、すぐに管理者を作る。
-
-- 参照の項目（カテゴリ・出演者・ステージ）は、一覧の `entry.data` に入らない。一件ずつ `getEmDashReferences` で取っているので、出展者と出演枠の数だけ問い合わせが走る。デプロイして遅いか CPU の上限を超えるなら、カテゴリを select の項目にする、出演枠を出演者の中のくり返し項目にする、などを考える（中身の設計が変わるので user と相談する）。
+- EmDash のパスキーは、URL のホスト名に結び付く。Worker 名・workers.dev のサブドメイン・ドメインを変えると、作ったパスキーではログインできない。
+- 空のデータベースで最初に管理画面を開いた人が、管理者を作れる。デプロイしたら、すぐに管理者を作る。
+- 写真が縮められず元のまま出ているのは、`siteUrl`（`EMDASH_SITE_URL`）が無く、EmDash が `image.remotePatterns` を足さないため。公開サイトをビルドで作るなら、この直しは要らない。
+- Preview ではキャッシュが効かない。wrangler の不具合（cloudflare/workers-sdk#16218）。issue にコメントするかは user が決める。
+- cron は、予約した公開・掃除（1時間に1回）・プラグインの保存場所の索引作り（起動して最初の1回）を動かす。索引は cron でしか作られないので、編集用の鍵や連絡先のプラグインを作ったら、cron を止めない。
 - 日時の項目は `Date` ではなく文字列で返る。
-- `@astrojs/cloudflare` は、画像の変換に `IMAGES`、セッションに KV の `SESSION` を使う。Worker を作るときに用意が要る。`IMAGES` が無料プランで上限を超えたときに請求になるか、失敗になるかは確かめていない。
-- Worker の型は、生成せずに `@cloudflare/workers-types` を使う（`wrangler types` を打たないため）。
-- `cf` の設定は `cloudflare.config.ts` で、`cf workers types` で型を作れる（コピーで試した）。ただし Astro のアダプター 14 系は `wrangler.jsonc` しか読まず、`cloudflare.config.ts` を読むのはアダプター 15 のベータ（`@cloudflare/vite-plugin` 2.0 のベータ）から。EmDash 1.2.0 はアダプター `^14.3.1` を求めるので、今は `wrangler.jsonc` を消せない。移る条件と手順は ADR 0005 に書いた。対応の進み具合は https://github.com/emdash-cms/emdash/issues/3639 で見る。
-- `wrangler.jsonc` だけのまま `cf deploy --dry-run` を打つと、Worker 名を `site` と判定し、`astro add cloudflare` で設定を書き換えようとする。`site/` で `cf deploy` を打たない。Starter にあった `deploy` の script（`wrangler deploy`）は消した。
-- 手元の D1・KV は、`wrangler.jsonc` の ID ごとに分かれて保存される。ID を入れたときに手元のデータが空になったので、dev-bypass で見本を入れ直した。
-- 開発サーバーが動いているときに、別のコンテナで `pnpm build` を打つと、共有している `node_modules/.vite` が書き換わり、開発サーバーが 500 を返す。`docker compose restart dev` で直る。
-- 管理画面には日本語がある（ログイン画面の言語の切り替え）。使い勝手はまだ見ていない。
-
-## 次にやること
-
-1. 管理画面を日本語にして、中身の入力・下書き・公開を一通り試す（関門2）。手順と翻訳の数は `docs/notes/emdash-gates.md`。
-2. 出展者の詳細ページ（`/exhibitors/{slug}`）とお知らせのページ（`/notices/{slug}`）を作る。トップページのリンク先がまだ無い。
-3. `main` に取り込んだら、本番用のビルドの設定を直し（上の「デプロイ」）、本番の URL を開いてすぐに管理者を作る。空のデータベースでは、最初に開いた人が管理者になる。
-4. デプロイして、CPU の上限（無料プランは 10ms）を超えていないかを Workers Logs で確かめる（関門1。`docs/notes/emdash-gates.md`）。日付と時刻が日本語・日本時間で出るかも見る（手元は Node、本番は workerd で動くため）。
-5. 画像の表示が、Workers の無料枠（10万リクエスト/日）と `IMAGES` の無料枠に収まるかを、Preview で測る（ADR 0004）。
-   あわせて、最初の Preview で `/_image` の画像が出るかを確かめる。本番では、画像の変換が同じ Worker の `/_emdash/api/media/file/...` を取りに行くので、手元では起きない失敗がありうる。出なければ、別の手を考える前に、`@emdash-cms/cloudflare` にある `image-endpoint` が何をするものかを先に読む。
+- `@astrojs/cloudflare` は、画像の変換に `IMAGES`、セッションに KV の `SESSION` を使う。
+- `site/` で `cf deploy` を打たない（`wrangler.jsonc` だけだと、`cf` が `astro.config.mjs` を書き換えようとする。ADR 0005）。
+- Workers Logs の集計は `site/.wrangler/cpu.mjs`（gitignore されている）。`cf o11y telemetry query --body` の結果を `/tmp/ev.json` に置いて、`node .wrangler/cpu.mjs` で集計する。
 
 ## 決まっていないこと
 
-- 協賛のランク・見せ方・広告との分け方（`docs/content-model.md` の「決まっていないこと」）。トップページの協賛は、ロゴのある協賛をロゴで、無い協賛を名前で並べるだけにしている。
-- 出展者のスラッグは年をまたいで重なりうる（例: 2026 年と 2027 年の同じ店）。URL に年を入れるかは、詳細ページを作るときに決める。
+- 協賛のランク・見せ方・広告との分け方（`docs/content-model.md`）。
+- 出展者のスラッグは年をまたいで重なりうる。URL に年を入れるかは、詳細ページを作るときに決める。
+- GitHub の repo 名を `machibun_website` に変える（user が行う）。
+- 管理画面の入口を Cloudflare Access で絞るか。
