@@ -8,9 +8,7 @@ export interface Entry<T> {
 }
 
 export interface MediaValue {
-	width?: number;
-	height?: number;
-	alt?: string;
+	// width・height は読まない。メディアライブラリで差し替えても、ここに残った値は古いまま変わらないため
 	meta: { storageKey: string };
 }
 

@@ -1,17 +1,18 @@
 import { env } from "cloudflare:workers";
 import { definePlugin } from "emdash";
 
-type Log = { warn: (msg: string) => void };
-
-async function rebuild(_event: unknown, ctx: { log: Log }) {
+export async function requestRebuild(warn: (msg: string) => void) {
 	const url = (env as { DEPLOY_HOOK_URL?: string }).DEPLOY_HOOK_URL;
 	if (!url) {
-		ctx.log.warn("DEPLOY_HOOK_URL が無いので、公開サイトをビルドし直さない");
+		warn("DEPLOY_HOOK_URL が無いので、公開サイトをビルドし直さない");
 		return;
 	}
 	const res = await fetch(url, { method: "POST" });
 	if (!res.ok) throw new Error(`公開サイトの Deploy Hook が ${res.status} を返した`);
 }
+
+const rebuild = (_event: unknown, ctx: { log: { warn: (msg: string) => void } }) =>
+	requestRebuild((msg) => ctx.log.warn(msg));
 
 export function createPlugin() {
 	return definePlugin({

@@ -158,7 +158,7 @@ const hhmm = (d: Date) => d.toLocaleTimeString("ja-JP", { ...tokyo, hour: "2-dig
 					{logoSponsors.length > 0 && (
 						<ul class="logo-grid logo-grid--m">
 							{logoSponsors.map((s) => {
-								const logo = <Image src={mediaUrl(s.data.logo!)} alt={s.data.title} width={s.data.logo!.width ?? 400} height={s.data.logo!.height ?? 200} />;
+								const logo = <Image src={mediaUrl(s.data.logo!)} alt={s.data.title} inferSize />;
 								return <li>{s.data.url ? <a href={s.data.url}>{logo}</a> : logo}</li>;
 							})}
 						</ul>
