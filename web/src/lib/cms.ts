@@ -31,12 +31,18 @@ export async function list<T>(collection: string, year: number) {
 	return items as Entry<T>[];
 }
 
-// 一件を取る API（`{collection}/{id}`）の references は使わない。token を作った管理者には下書きの版を返すため
-export async function refTitle(collection: string, id: string, relation: string, published: Set<string>) {
-	const { children } = await get(`${collection}/${id}/references/${relation}/children`);
-	return (children as { id: string; title: string }[]).find((c) => published.has(c.id))?.title;
+// 参照する側（出展者・出演枠）から取る API（`{id}` と `{id}/references/{relation}/children`）は使わない。
+// token を作った管理者には、下書きに取り置かれた選択を返すため。参照される側から取ると、公開中のつながりだけが返る
+export async function titleByReferrer(collection: string, targets: Entry<{ title: string }>[], relation: string) {
+	const titles = new Map<string, string>();
+	await Promise.all(
+		targets.map(async (t) => {
+			const { parents, nextCursor } = await get(`${collection}/${t.id}/references/${relation}/parents?limit=100`);
+			if (nextCursor) throw new Error(`${t.data.title} を参照するものが 100 件を超えた`);
+			for (const p of parents as { id: string }[]) titles.set(p.id, t.data.title);
+		}),
+	);
+	return titles;
 }
-
-export const ids = (entries: Entry<unknown>[]) => new Set(entries.map((e) => e.id));
 
 export const mediaUrl = (m: MediaValue) => new URL(`/_emdash/api/media/file/${m.meta.storageKey}`, CMS_URL).href;
