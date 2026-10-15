@@ -25,7 +25,10 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
    - そこで、一覧（`status=published`、公開中の版を返す）と、参照される側（カテゴリ・出演者・ステージ）から取る `{id}/references/{relation}/parents` だけを使う。`parents` は公開中のつながりだけを返す。下書きを残したままビルドして、公開サイトに下書きが出ないことを確かめた。
    - REST API は、索引の無い項目では並べ替えられない（`Custom fields must be indexed before sorting`）。並べ替えは `web/` の側で行う。
    - ビルドのたびに CMS の Worker に、一覧 7 回と、カテゴリ・出演者・ステージの数だけの GET が届く。1回ごとの CPU は測っていない。Cloudflare に出したら Workers Logs で見る。
-3. `cms/` から公開ページを消し、フックのプラグイン（Deploy Hook を呼ぶ）を足す。Deploy Hook の URL は secret に置く。
+3. （済み、2026-10-16）`cms/` を管理画面だけにした。公開ページのキャッシュの設定（`routeRules`・`cache`）を消し、`/` は `/_emdash/admin` に転送する。フックのプラグイン（`cms/src/plugins/rebuild-web.ts`）を足した。
+   - 公開・公開の取り消し・削除・復元と、公開中で下書きの版が無いものの保存（下書きの仕組みが無いカテゴリ・ステージ・出演枠）で、環境変数 `DEPLOY_HOOK_URL` に POST する。下書きの保存・破棄・新しい下書きでは呼ばない。手元で、コンテナの中に立てた受け口（port 4599）で確かめた。
+   - 手元の `cms/.env` の `DEPLOY_HOOK_URL` は `http://localhost:4599/hook`。受け口が無いときは、呼んで失敗したことがログに出るだけで、公開は止まらない。
+   - 本番と Preview では、Worker の secret に `DEPLOY_HOOK_URL` を置く（4 で作る）。無ければ、警告をログに出してビルドし直さない。
 4. Cloudflare の作業。**どれも、する前に user に聞く。**
    - Worker `machibun-website` の名前を `machibun-cms` に変え、同時に `cms/wrangler.jsonc` の `name` も変える（変えないと、次のビルドで `machibun-website` がもう一度作られる）。ビルドの設定の root を `cms` にする。
    - 公開サイトの Worker `machibun-website` と、ビルドの設定（本番・Preview、root は `web`）を作る。
@@ -39,10 +42,9 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 
 - ブランチは `feat` と `main` だけ。いまの作業は `feat/emdash-site`。`main` は保護されていて、PR で取り込む。
 - 開発は Docker のコンテナで行う（Node 22・pnpm 11.9.0・uv）。ホストには Node を入れない。
-- EmDash は `cms/` にある（2026-10-16 に `site/` から名前を変えた）。公開ページは `web/` に移した（段2）。`cms/` の公開ページのキャッシュの設定（`routeRules`・`cache`）は、段3で消す。
+- EmDash は `cms/` にある（2026-10-16 に `site/` から名前を変えた）。公開ページは `web/` に移し（段2）、`cms/` は管理画面だけにした（段3）。
   - 中身の種類は `cms/seed/seed.json`。見本のデータも入っている。
-  - トップページは `cms/src/pages/index.astro`。キャッチコピー・開催日・会場は HTML に直接書いている。
-  - トップページは Cloudflare のキャッシュ（`routeRules` の `maxAge: 300`）から返す。本番で `HIT` を確かめた。分けたら、このキャッシュの設定は消す。
+  - トップページは `web/src/pages/index.astro`。キャッチコピー・開催日・会場は HTML に直接書いている。
 - 画像は KV（`MEDIA`）に置く（ADR 0004）。置き場所の処理は `cms/src/storage/kv.ts`。
 - Worker の設定は `cms/wrangler.jsonc`（ADR 0005）。
 - 環境は3つで、データはつながない。

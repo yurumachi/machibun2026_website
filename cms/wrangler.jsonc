@@ -6,7 +6,6 @@
 	"compatibility_flags": ["nodejs_compat"],
 	"observability": { "enabled": true },
 	"preview_urls": true,
-	"cache": { "enabled": true },
 	"d1_databases": [
 		{
 			"binding": "DB",
@@ -25,7 +24,6 @@
 		"crons": ["0 * * * *"],
 	},
 	"previews": {
-		"cache": { "enabled": true },
 		"d1_databases": [
 			{
 				"binding": "DB",
