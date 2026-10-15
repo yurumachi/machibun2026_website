@@ -2,10 +2,10 @@
 services:
   dev:
     build: .
-    working_dir: /work/site
+    working_dir: /work/cms
     volumes:
       - .:/work
-      - node_modules:/work/site/node_modules
+      - node_modules:/work/cms/node_modules
       - pnpm_store:/root/.local/share/pnpm/store
       - cf_config:/root/.config/cloudflare
     ports:
