@@ -1,0 +1,10 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "machibun-website",
+	"compatibility_date": "2026-02-24",
+	"preview_urls": true,
+	"assets": {
+		"directory": "./dist",
+		"not_found_handling": "404-page"
+	}
+}
