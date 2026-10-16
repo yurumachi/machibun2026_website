@@ -2,7 +2,7 @@
 import { PortableText } from "astro-portabletext";
 import Base from "../../layouts/Base.astro";
 import SafeLink from "../../components/SafeLink.astro";
-import { YEAR, isoDate, jaDate, list, type Entry } from "../../lib/cms";
+import { YEAR, isoDate, jaDate, list, pageSlug, type Entry } from "../../lib/cms";
 
 interface Notice {
 	title: string;
@@ -13,7 +13,7 @@ interface Notice {
 
 export async function getStaticPaths() {
 	const notices = await list<Notice>("notices", YEAR);
-	return notices.map((n) => ({ params: { slug: n.slug ?? n.id }, props: { n } }));
+	return notices.map((n) => ({ params: { slug: pageSlug(n) }, props: { n } }));
 }
 
 const { n } = Astro.props as { n: Entry<Notice> };
@@ -23,7 +23,7 @@ const date = new Date(n.data.date);
 <Base title={n.data.title}>
 	<main id="main" class="section">
 		<div class="container reading detail">
-			<p><a href="/#news">お知らせの一覧へ戻る</a></p>
+			<p class="detail__back"><a href="/#news">お知らせの一覧へ戻る</a></p>
 			<header class="detail__header">
 				<p>
 					<time datetime={isoDate(date)}>{jaDate(date)}</time>

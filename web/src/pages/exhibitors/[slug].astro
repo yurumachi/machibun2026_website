@@ -1,7 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import Base from "../../layouts/Base.astro";
-import { YEAR, list, mediaUrl, safeHref, titleByReferrer, type Entry, type MediaValue } from "../../lib/cms";
+import { YEAR, list, mediaUrl, pageSlug, safeHref, titleByReferrer, type Entry, type MediaValue } from "../../lib/cms";
 
 interface Exhibitor {
 	title: string;
@@ -18,7 +18,7 @@ export async function getStaticPaths() {
 		list<{ title: string }>("categories", YEAR),
 	]);
 	const categoryOf = await titleByReferrer("categories", categories, "exhibitors_category");
-	return exhibitors.map((e) => ({ params: { slug: e.slug ?? e.id }, props: { e, category: categoryOf.get(e.id) } }));
+	return exhibitors.map((e) => ({ params: { slug: pageSlug(e) }, props: { e, category: categoryOf.get(e.id) } }));
 }
 
 const { e, category } = Astro.props as { e: Entry<Exhibitor>; category?: string };
@@ -32,7 +32,7 @@ const links = e.data.links?.flatMap((l) => {
 <Base title={e.data.title} description={e.data.catch}>
 	<main id="main" class="section">
 		<div class="container reading detail">
-			<p><a href="/#exhibitors">出展者の一覧へ戻る</a></p>
+			<p class="detail__back"><a href="/#exhibitors">出展者の一覧へ戻る</a></p>
 			<header class="detail__header">
 				{category && <p><span class="label">{category}</span></p>}
 				<h1>{e.data.title}</h1>
@@ -41,8 +41,7 @@ const links = e.data.links?.flatMap((l) => {
 
 			{photos.length > 0 && (
 				<ul class="detail__photos">
-					{/* 写真の代わりの文に名前を入れる方法は採らない。すぐ上の見出しと同じことを読み上げるだけになるため */}
-					{photos.map((p) => <li><Image src={mediaUrl(p.image)} alt="" width={960} height={720} /></li>)}
+					{photos.map((p) => <li><Image src={mediaUrl(p.image)} alt={p.image.alt ?? ""} width={960} height={720} /></li>)}
 				</ul>
 			)}
 

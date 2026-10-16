@@ -19,13 +19,13 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 
 ## 次にやること
 
-1. （済み、2026-10-16）`site/` を `cms/` に名前を変え、cron を `0 * * * *` にした。`cms/wrangler.jsonc` の `name` はまだ変えていない（Worker の名前を変えるときに一緒に変える）。Workers Builds のビルドの設定の root はまだ `site` を見ているので、4 で root を直すまで push しない。
+1. （済み、2026-10-16）`site/` を `cms/` に名前を変え、cron を `0 * * * *` にした。Worker の名前とビルドの設定の root は、4 で直した。
 2. （済み、2026-10-16）`web/` を作った。トップページ・404・レイアウト・CSS・画像を `cms/` から移し、REST API から読む形にした（`web/src/lib/cms.ts`）。手元の CMS を読んでビルドが通り、写真は `/_astro/` の webp に縮まる（2.27MB が 57〜169KB）。
    - 手元のビルド: `web/.env` に `CMS_URL=http://localhost:4321` と、手元の管理者で作った読むだけの token（`CMS_TOKEN`）を置く。token は `POST /_emdash/api/admin/api-tokens`（`{"name":"web-build-read","scopes":["content:read","media:read"]}`）で作る。
    - 管理者の token で読むと、参照する側（出展者・出演枠）から取る API は、下書きの版を返す。一件を取る API（`{collection}/{id}`）は下書きの名前を、`{id}/references/{relation}/children` は下書きで選び直した参照を返す（手元で確かめた。`relations.ts` の `stagedPageFor`）。API token は管理者しか作れないので、権限では避けられない。
    - そこで、一覧（`status=published`、公開中の版を返す）と、参照される側（カテゴリ・出演者・ステージ）から取る `{id}/references/{relation}/parents` だけを使う。`parents` は公開中のつながりだけを返す。下書きを残したままビルドして、公開サイトに下書きが出ないことを確かめた。
    - REST API は、索引の無い項目では並べ替えられない（`Custom fields must be indexed before sorting`）。並べ替えは `web/` の側で行う。
-   - ビルドのたびに CMS の Worker に、一覧 7 回と、カテゴリ・出演者・ステージの数だけの GET が届く。1回ごとの CPU は測っていない。Cloudflare に出したら Workers Logs で見る。
+   - ビルドのたびに CMS の Worker に、一覧 10 回（トップ 7・出展者の詳細 2・お知らせの詳細 1）と、参照される側の数だけの GET（カテゴリはトップと出展者の詳細で2回ずつ）が届く。1回ごとの CPU は 8〜95ms（中央 12〜20ms、2026-10-16 の Preview、emdash-gates.md）。
 3. （済み、2026-10-16）`cms/` を管理画面だけにした。公開ページのキャッシュの設定（`routeRules`・`cache`）を消し、`/` は `/_emdash/admin` に転送する。フックのプラグイン（`cms/src/plugins/rebuild-web.ts`）を足した。
    - 公開・公開の取り消し・削除・復元と、公開中で下書きの版が無いものの保存（下書きの仕組みが無いカテゴリ・ステージ・出演枠）で、環境変数 `DEPLOY_HOOK_URL` に POST する。下書きの保存・破棄・新しい下書きでは呼ばない。手元で、コンテナの中に立てた受け口（port 4599）で確かめた。
    - 手元の `cms/.env` の `DEPLOY_HOOK_URL` は `http://localhost:4599/hook`。受け口が無いときは、呼んで失敗したことがログに出るだけで、公開は止まらない。

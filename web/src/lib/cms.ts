@@ -12,7 +12,13 @@ export interface Entry<T> {
 export interface MediaValue {
 	// width・height は読まない。メディアライブラリで差し替えても、ここに残った値は古いまま変わらないため
 	meta: { storageKey: string };
+	alt?: string;
 }
+
+// 識別名をそのまま URL に使う方法は採らない。`#`・`?`・`/` を含む値や、Unicode の正規化で別の識別名と同じになる値では、
+// 一覧のリンクと作られるページの URL が食い違うため。ビルドを止める方法も採らない。公開サイトが黙って古いままになるため
+export const pageSlug = (e: { id: string; slug: string | null }) =>
+	e.slug && e.slug === e.slug.normalize() && !/[\s/?#%\\]/.test(e.slug) ? e.slug : e.id;
 
 async function get(path: string) {
 	const res = await fetch(new URL(`/_emdash/api/content/${path}`, CMS_URL), {
