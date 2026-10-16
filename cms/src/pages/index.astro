@@ -1,0 +1,7 @@
+---
+import { env } from "cloudflare:workers";
+
+// EmDash の siteUrl に公開サイトを入れる方法は採らない。パスキーがそのホスト名に結び付き、管理画面のパスキーでログインできなくなるため
+const publicSite = (env as { PUBLIC_SITE_URL?: string }).PUBLIC_SITE_URL;
+return Astro.redirect(publicSite ?? "/_emdash/admin");
+---
