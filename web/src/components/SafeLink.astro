@@ -1,0 +1,10 @@
+---
+import type { Mark, Props as $ } from "astro-portabletext/types";
+import { safeHref } from "../lib/cms";
+
+export type Props = $<Mark<{ href?: string }>>;
+
+const href = safeHref(Astro.props.node.markDef.href);
+---
+
+{href ? <a href={href}><slot /></a> : <slot />}

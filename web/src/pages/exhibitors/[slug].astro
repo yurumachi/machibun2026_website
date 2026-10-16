@@ -1,0 +1,65 @@
+---
+import { Image } from "astro:assets";
+import Base from "../../layouts/Base.astro";
+import { YEAR, list, mediaUrl, pageSlug, safeHref, titleByReferrer, type Entry, type MediaValue } from "../../lib/cms";
+
+interface Exhibitor {
+	title: string;
+	catch?: string;
+	description?: string;
+	booth_number?: string;
+	photos?: { image: MediaValue }[];
+	links?: { label: string; url: string }[];
+}
+
+export async function getStaticPaths() {
+	const [exhibitors, categories] = await Promise.all([
+		list<Exhibitor>("exhibitors", YEAR),
+		list<{ title: string }>("categories", YEAR),
+	]);
+	const categoryOf = await titleByReferrer("categories", categories, "exhibitors_category");
+	return exhibitors.map((e) => ({ params: { slug: pageSlug(e) }, props: { e, category: categoryOf.get(e.id) } }));
+}
+
+const { e, category } = Astro.props as { e: Entry<Exhibitor>; category?: string };
+const photos = e.data.photos?.filter((p) => p.image) ?? [];
+const links = e.data.links?.flatMap((l) => {
+	const href = safeHref(l.url);
+	return href ? [{ label: l.label, href }] : [];
+}) ?? [];
+---
+
+<Base title={e.data.title} description={e.data.catch}>
+	<main id="main" class="section">
+		<div class="container reading detail">
+			<p class="detail__back"><a href="/#exhibitors">出展者の一覧へ戻る</a></p>
+			<header class="detail__header">
+				{category && <p><span class="label">{category}</span></p>}
+				<h1>{e.data.title}</h1>
+				{e.data.catch && <p class="detail__lead">{e.data.catch}</p>}
+			</header>
+
+			{photos.length > 0 && (
+				<ul class="detail__photos">
+					{photos.map((p) => <li><Image src={mediaUrl(p.image)} alt={p.image.alt ?? ""} width={960} height={720} /></li>)}
+				</ul>
+			)}
+
+			{e.data.description && <p class="detail__text">{e.data.description}</p>}
+
+			{(e.data.booth_number || links.length > 0) && (
+			<dl class="detail__facts">
+				{e.data.booth_number && (
+					<div><dt>出展場所</dt><dd>{e.data.booth_number}</dd></div>
+				)}
+				{links.length > 0 && (
+					<div>
+						<dt>リンク</dt>
+						<dd><ul>{links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul></dd>
+					</div>
+				)}
+			</dl>
+			)}
+		</div>
+	</main>
+</Base>
