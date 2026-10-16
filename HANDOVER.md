@@ -46,7 +46,9 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
    - Deploy Hook の URL は `https://api.cloudflare.com/client/v4/workers/builds/deploy_hooks/<deploy_hook_uuid>`。作ったときの返事に URL は入らない。
 6. EmDash は使える前提で進める（2026-10-16、user が決めた）。関門2の人による試し（user と学生、手順は emdash-gates.md）は後で行う。agent が通した結果は emdash-gates.md にある。試しのデータ（「関門2の試し」の出展者・お知らせ・出演者・出演枠）は、見本として残す。
    - （済み、2026-10-16）管理用の Preview で公開すると、公開サイトの Preview がビルドし直される。公開サイトの feat の Deploy Hook（`<deploy_hook_uuid>`）を、管理画面の Worker の Preview の secret `DEPLOY_HOOK_URL` に置いた。
-7. 出展者の詳細ページとお知らせのページを `web/` に作る（`main` に取り込む前に、この PR で行う）。今は一覧からのリンクが 404 になる。
+7. （済み、2026-10-16）出展者の詳細ページ（`/exhibitors/<識別名>`）とお知らせのページ（`/notices/<識別名>`）を `web/` に作った。年は URL の頭（Worker の名前 `machibun2026`）に入れ、ページの URL には入れない。
+   - 紹介文（`text` の項目）は、管理画面では「Enter markdown content...」と案内されるが、公開サイトではマークダウンとして描かず、改行だけ生かした文章で出す。マークダウンを HTML にすると、出展者が書いた危ない HTML を消す処理まで要るため。`**` などはそのまま出る。
+   - お知らせの本文（Portable Text）は `astro-portabletext` で描く。リンクは `http`・`https`・`mailto`・`tel` だけ通す。本文の中の画像は、まだ描かない（出ない）。
 8. PageSpeed の直しは別の issue で行う: フォント（#2）、イラストの大きさ（#3）。
 
 ## いまの状態
