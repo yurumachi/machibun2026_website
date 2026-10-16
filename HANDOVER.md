@@ -44,13 +44,14 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
    - 公開サイトの本番は、`main` に `web/` が入るまでビルドできない（Import のときの最初のビルドは `root directory not found` で失敗した）。本番の `CMS_TOKEN` が正しいかも、そこで初めて確かめられる。
    - 公開サイトの Deploy Hook（`main` のもの）を `cf builds deploy-hooks create machibun-website --branch main` で作り、管理画面の Worker の本番の secret `DEPLOY_HOOK_URL` に置く（`cf workers secrets update`）。いまの本番には `DEPLOY_HOOK_URL` が無いので、本番の CMS で公開してもどの公開サイトもビルドし直されない。
    - Deploy Hook の URL は `https://api.cloudflare.com/client/v4/workers/builds/deploy_hooks/<deploy_hook_uuid>`。作ったときの返事に URL は入らない。
-6. 関門2を、管理用の Preview で user と学生で試す（手順は emdash-gates.md）。agent が通した結果は emdash-gates.md にある。試しのデータ（「関門2の試し」の出展者・お知らせ・出演者・出演枠）は、見本として残す。
+6. EmDash は使える前提で進める（2026-10-16、user が決めた）。関門2の人による試し（user と学生、手順は emdash-gates.md）は後で行う。agent が通した結果は emdash-gates.md にある。試しのデータ（「関門2の試し」の出展者・お知らせ・出演者・出演枠）は、見本として残す。
    - （済み、2026-10-16）管理用の Preview で公開すると、公開サイトの Preview がビルドし直される。公開サイトの feat の Deploy Hook（`<deploy_hook_uuid>`）を、管理画面の Worker の Preview の secret `DEPLOY_HOOK_URL` に置いた。
-7. 出展者の詳細ページとお知らせのページを `web/` に作る。
-8. PageSpeed（本番、モバイル 59 点）で出た、フォントと画像の重さを直す。Google Fonts の Noto Sans JP（CSS 60KB、フォント 720KB）が表示を止めている。イラストが表示の大きさより大きい。
+7. 出展者の詳細ページとお知らせのページを `web/` に作る（`main` に取り込む前に、この PR で行う）。今は一覧からのリンクが 404 になる。
+8. PageSpeed の直しは別の issue で行う: フォント（#2）、イラストの大きさ（#3）。
 
 ## いまの状態
 
+- GitHub の repo は `yurumachi/machibun_website`（2026-10-16 に `machibun2026_website` から名前を変えた）。Workers Builds は repo の id でつながっていて、名前を変えたあとも手でのビルドは通った。push でビルドが始まるかは、次の push で確かめる。
 - ブランチは `feat` と `main` だけ。いまの作業は `feat/emdash-site`。`main` は保護されていて、PR で取り込む。
 - 開発は Docker のコンテナで行う（Node 22・pnpm 11.9.0・uv）。ホストには Node を入れない。
 - EmDash は `cms/` にある（2026-10-16 に `site/` から名前を変えた）。公開ページは `web/` に移し（段2）、`cms/` は管理画面だけにした（段3）。
@@ -110,5 +111,4 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 
 - 協賛のランク・見せ方・広告との分け方（`docs/content-model.md`）。
 - 出展者のスラッグは年をまたいで重なりうる。URL に年を入れるかは、詳細ページを作るときに決める。
-- GitHub の repo 名を `machibun_website` に変える（user が行う）。
 - 管理画面の入口を Cloudflare Access で絞るか。
