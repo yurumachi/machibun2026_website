@@ -528,3 +528,16 @@ html { scroll-padding-block: calc(var(--header-h) + var(--space-2)) calc(var(--t
 }
 .site-header .global-nav { margin-left: auto; }
 .site-header__inner { flex-wrap: nowrap; }
+
+/* ---------- 詳細ページ（出展者・お知らせ） ---------- */
+.detail { display: grid; gap: var(--space-4); }
+.detail__header { display: grid; gap: var(--space-1); }
+.detail__header p { display: flex; flex-wrap: wrap; gap: var(--space-1); align-items: center; color: var(--color-text-sub); }
+.detail__lead { font-size: var(--fs-18); font-weight: var(--fw-bold); }
+.detail__photos { list-style: none; padding: 0; display: grid; gap: var(--space-2); }
+.detail__photos img { display: block; width: 100%; height: auto; border-radius: var(--radius-m); }
+.detail__text { white-space: pre-line; }
+.detail__facts { display: grid; gap: var(--space-2); }
+.detail__facts dt { font-weight: var(--fw-bold); }
+.detail__facts ul { padding-left: 1.25em; }
+.detail__body { display: grid; gap: var(--space-2); }

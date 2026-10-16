@@ -5,10 +5,12 @@ import "../styles/blobs.css";
 
 interface Props {
 	title?: string;
+	description?: string;
 }
 
 const siteTitle = "まちナかぶんかさい";
 const fullTitle = Astro.props.title ? `${Astro.props.title}｜${siteTitle}` : siteTitle;
+const description = Astro.props.description ?? "夜のマルシェとまちの踊り場。2026年11月14日（土）16:00〜21:00、長岡の米百俵プレイス ミライエ長岡で開く、まちなかの文化祭。";
 ---
 
 <!doctype html>
@@ -17,7 +19,7 @@ const fullTitle = Astro.props.title ? `${Astro.props.title}｜${siteTitle}` : si
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 		<title>{fullTitle}</title>
-		<meta name="description" content="夜のマルシェとまちの踊り場。2026年11月14日（土）16:00〜21:00、長岡の米百俵プレイス ミライエ長岡で開く、まちなかの文化祭。" />
+		<meta name="description" content={description} />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" />

@@ -1,12 +1,10 @@
 ---
 import { Image } from "astro:assets";
 import Base from "../layouts/Base.astro";
-import { list, mediaUrl, titleByReferrer, type MediaValue } from "../lib/cms";
-
-const YEAR = 2026;
+import { YEAR, hhmm, isoDate, jaDate, list, mediaUrl, titleByReferrer, type MediaValue } from "../lib/cms";
 
 const [notices, exhibitors, slots, sponsors, categories, performers, stages] = await Promise.all([
-	list<{ title: string; date: string; pinned?: boolean }>("notices", YEAR),
+	list<{ title: string; date: string; pinned?: number }>("notices", YEAR),
 	list<{ title: string; catch?: string; booth_number?: string; photos?: { image: MediaValue }[] }>("exhibitors", YEAR),
 	list<{ starts_at: string; ends_at: string }>("slots", YEAR),
 	list<{ title: string; url?: string; logo?: MediaValue }>("sponsors", YEAR),
@@ -14,7 +12,7 @@ const [notices, exhibitors, slots, sponsors, categories, performers, stages] = a
 	list<{ title: string }>("performers", YEAR),
 	list<{ title: string }>("stages", YEAR),
 ]);
-notices.sort((a, b) => Number(b.data.pinned ?? false) - Number(a.data.pinned ?? false) || b.data.date.localeCompare(a.data.date));
+notices.sort((a, b) => (b.data.pinned ?? 0) - (a.data.pinned ?? 0) || b.data.date.localeCompare(a.data.date));
 exhibitors.sort((a, b) => (a.data.booth_number ?? "").localeCompare(b.data.booth_number ?? "", "ja", { numeric: true }));
 slots.sort((a, b) => a.data.starts_at.localeCompare(b.data.starts_at));
 const [categoryOf, performerOf, stageOf] = await Promise.all([
@@ -32,11 +30,6 @@ const scheduleRows = slots.flatMap((s) => {
 
 const logoSponsors = sponsors.filter((s) => s.data.logo);
 const nameSponsors = sponsors.filter((s) => !s.data.logo);
-
-const tokyo = { timeZone: "Asia/Tokyo" } as const;
-const isoDate = (d: Date) => d.toLocaleDateString("sv-SE", tokyo);
-const jaDate = (d: Date) => d.toLocaleDateString("ja-JP", { ...tokyo, dateStyle: "long" });
-const hhmm = (d: Date) => d.toLocaleTimeString("ja-JP", { ...tokyo, hour: "2-digit", minute: "2-digit" });
 ---
 
 <Base>
@@ -93,7 +86,7 @@ const hhmm = (d: Date) => d.toLocaleTimeString("ja-JP", { ...tokyo, hour: "2-dig
 					{notices.map((n) => (
 						<li>
 							<time datetime={isoDate(new Date(n.data.date))}>{jaDate(new Date(n.data.date))}</time>
-							<span>{n.data.pinned && <span class="label">重要</span>}</span>
+							<span>{n.data.pinned ? <span class="label">重要</span> : null}</span>
 							<a href={`/notices/${n.slug ?? n.id}`}>{n.data.title}</a>
 						</li>
 					))}
