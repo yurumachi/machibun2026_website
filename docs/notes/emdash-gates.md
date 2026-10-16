@@ -39,6 +39,51 @@ EmDash は、CPU と日本語の管理画面という2つの関門を通った�
 
 判定の目安: 出展者・実行委員が、説明書を1枚渡せば迷わず 3〜8 をできるなら通す。英語のせいで説明書が厚くなるなら、翻訳を EmDash に送れるか、間に合うかで判断する。
 
+### 1回目の結果（2026-10-16、管理用の Preview、agent が browser-harness で操作）
+
+ログインは user がパスキーで行い、手順 2〜9 は agent が user の Chrome を操作して行った。公開サイトの Preview は、手順ごとに `cf builds create` でビルドし直して確かめた。人が迷うかどうかは、この回では分からない。判定は user と学生が触ってから行う。
+
+| 手順 | 結果 |
+|---|---|
+| 2 言語 | 設定 → 言語で「日本語」を選ぶと、その場で切り替わった |
+| 3 出展者 | 名前・カテゴリ・ひとこと・紹介文・出展場所の番号・リンクを入れられた |
+| 4 写真 | `exhibitor-1.png`（2.27MB）を管理画面から上げられた。公開サイトでは 59〜149KB の webp になった |
+| 5 下書き | 公開サイトに出なかった（6組のまま） |
+| 6 公開 | 公開サイトに出た（7組、写真つき） |
+| 7 直して再公開 | ひとことを直して「Publish changes」で公開し、公開サイトが変わった |
+| 8 お知らせ | 公開し、一覧の上に「重要」として固定された |
+| 9 出演者と出演枠 | スケジュールに 19:30–19:50 の行として出た |
+
+英語のまま出た文言（手順の中で見たもの）:
+
+- 公開: 「Publish now」「Publish now?」「This content will be visible on the site immediately.」「Publish changes」「Visitors will see these changes immediately.」「Draft version」「This version is not visible on the site」「Live version」「Visitors still see the published version」「Draft changes」「Ready to publish now or schedule for later」「Publication date」「Created and updated」
+- 参照: 「Add reference」「Replace reference」「No references selected.」「Select content」
+- 写真: 「Choose an image from the library or upload a new one.」「Upload files」「From URL」「Edit asset」
+- 右の欄: 「URL & language」「Content language」「English」「Choose bylines」
+- 入力欄の「(optional)」、左のメニューの「Calendar」「Categories」「Tags」
+
+気づいたこと:
+
+- 出展者を初めて公開したとき、画面は「Draft version」のままだった。再読み込みすると「Live version」になった。公開できたのか分からず、もう一度押す人が出そう。
+- 識別名（スラッグ）は、日本語の名前からそのまま作られる（「夜市の焼き菓子スタンド関門2の試し」のような値）。英数字に直す説明が要る。
+- 新しく作った項目の URL に `?locale=en` が付き、「Content language: English」と出る。中身の言語は使っていないので、触らないように説明する。
+
+### 関門1の結果（2026-10-16、上と同じ操作、Workers Logs）
+
+管理画面の Worker（Preview）へのアクセス 218 件は、すべて `outcome: ok` で、Error 1102 は出なかった。単位は ms。
+
+| 処理 | CPU |
+|---|---|
+| 写真を確定する（`POST /_emdash/api/media/:id/confirm`） | 701 |
+| 写真を送る（`PUT /_emdash/api/media/:id/upload`） | 238 |
+| 公開する（`POST …/:id/publish`） | 61〜218 |
+| 保存する（`POST`・`PUT /_emdash/api/content/...`） | 56〜159 |
+| 管理画面の各画面を開く | 32〜124 |
+| 公開サイトのビルドからの一覧・参照の GET | 8〜95（中央 12〜20） |
+
+- 関門1の目安（管理画面の操作で Error 1102 が出ないか）は通った。10ms は、ほぼすべての操作で超えた。
+- 写真の確定は上限の 70 倍だった。出展者がまとめて写真を上げると、打ち切られることがあるかもしれない（未確認）。
+
 ## 関門1: CPU（10ms）
 
 ### 測り方
