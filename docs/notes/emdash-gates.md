@@ -21,7 +21,7 @@ EmDash は、CPU と日本語の管理画面という2つの関門を通った�
 
 管理用の Preview で行う。学生にも、招待してから同じ手順で触ってもらう。
 
-1. https://preview-machibun-website.yurumachi-yuruyuru.workers.dev/_emdash/admin を開き、パスキーでログインする。
+1. https://preview-machibun-cms.yurumachi-yuruyuru.workers.dev/_emdash/admin を開き、パスキーでログインする。
 2. 管理画面の言語を日本語にする。
 3. 出展者を1件、新しく作る。名前・カテゴリ・ひとこと・紹介文・出展場所の番号・リンクを入れる。
 4. 写真を、管理画面から上げて付ける（KV に置く仕組みで、管理画面から上げるのは初めて）。
