@@ -1,3 +1,5 @@
+export const YEAR = 2026;
+
 const { CMS_URL, CMS_TOKEN } = process.env;
 if (!CMS_URL || !CMS_TOKEN) throw new Error("CMS_URL と CMS_TOKEN を環境変数か web/.env に設定する");
 
@@ -44,3 +46,11 @@ export async function titleByReferrer(collection: string, targets: Entry<{ title
 }
 
 export const mediaUrl = (m: MediaValue) => new URL(`/_emdash/api/media/file/${m.meta.storageKey}`, CMS_URL).href;
+
+// 書かれた URL をそのまま href に入れる方法は採らない。出展者などが書いた `javascript:` の URL が動いてしまうため
+export const safeHref = (url: string | undefined) => (url && /^(https?:|mailto:|tel:)/i.test(url) ? url : undefined);
+
+const tokyo = { timeZone: "Asia/Tokyo" } as const;
+export const isoDate = (d: Date) => d.toLocaleDateString("sv-SE", tokyo);
+export const jaDate = (d: Date) => d.toLocaleDateString("ja-JP", { ...tokyo, dateStyle: "long" });
+export const hhmm = (d: Date) => d.toLocaleTimeString("ja-JP", { ...tokyo, hour: "2-digit", minute: "2-digit" });

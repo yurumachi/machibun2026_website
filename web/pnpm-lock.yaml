@@ -11,6 +11,9 @@ importers:
       astro:
         specifier: ^7.3.2
         version: 7.3.8(esbuild@0.28.2)(yaml@2.9.1)
+      astro-portabletext:
+        specifier: ^0.11.4
+        version: 0.11.4(astro@7.3.8(esbuild@0.28.2)(yaml@2.9.1))
       sharp:
         specifier: ^0.35.5
         version: 0.35.5
@@ -599,6 +602,14 @@ packages:
   '@poppinss/exception@1.2.3':
     resolution: {integrity: sha512-dCED+QRChTVatE9ibtoaxc+WkdzOSjYTKi/+uacHWIsfodVfpsueo3+DKpgU5Px8qXjgmXkSvhXvSCz3fnP9lw==}
 
+  '@portabletext/toolkit@3.0.3':
+    resolution: {integrity: sha512-EI59/l4E0E5wCyWUzvW1FPKWfqDsbebCnCf9ZDHjXGH95X4EORlCtnPuA79PpKaHv0LTChORy55trRzW6tYnOQ==}
+    engines: {node: ^14.13.1 || >=16.0.0}
+
+  '@portabletext/types@2.0.15':
+    resolution: {integrity: sha512-2e6i2gSQsrA/5OL5Gm4/9bxB9MNO73Fa47zj+0mT93xkoQUCGCWX5fZh1YBJ86hszaRYlqvqG08oULxvvPPp/Q==}
+    engines: {node: ^14.13.1 || >=16.0.0 || >=18.0.0}
+
   '@rolldown/binding-android-arm-eabi@1.2.14':
     resolution: {integrity: sha512-aWR+XKH9+rW7m5fWq/5360J3mHycrx/o6xZM2DQFdJnTMdyP7/WzxPjhtLbVWdKo2y612/4U1bWqb3HQhiF7vg==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -771,6 +782,11 @@ packages:
   aria-query@5.3.2:
     resolution: {integrity: sha512-COROpnaoap1E2F000S62r6A60uHZnmlvomhfyT2DlTcrY1OrBKn2UhH7qn5wTC9zMvD0AY7csdPSNwKP+7WiQw==}
     engines: {node: '>= 0.4'}
+
+  astro-portabletext@0.11.4:
+    resolution: {integrity: sha512-2dOPJAZs6IiVotFaQB5Em0fYUNhX7cf2FfWf0dXfQ67wLmLXsUiQnRzb1BORrc9LS8YVQhXjhNXARB4kZwO+2w==}
+    peerDependencies:
+      astro: '>=4.6.0'
 
   astro@7.3.8:
     resolution: {integrity: sha512-LHzDHSaV+YzZiR3EFndDYTLLeNeuMtP1qX1FLcCNUUHOCqTTIWPczy2UV3zpA5VqvJe5cWZolqM9Z8JFqR2i9w==}
@@ -1956,6 +1972,12 @@ snapshots:
 
   '@poppinss/exception@1.2.3': {}
 
+  '@portabletext/toolkit@3.0.3':
+    dependencies:
+      '@portabletext/types': 2.0.15
+
+  '@portabletext/types@2.0.15': {}
+
   '@rolldown/binding-android-arm-eabi@1.2.14':
     optional: true
 
@@ -2084,6 +2106,12 @@ snapshots:
       picomatch: 2.3.2
 
   aria-query@5.3.2: {}
+
+  astro-portabletext@0.11.4(astro@7.3.8(esbuild@0.28.2)(yaml@2.9.1)):
+    dependencies:
+      '@portabletext/toolkit': 3.0.3
+      '@portabletext/types': 2.0.15
+      astro: 7.3.8(esbuild@0.28.2)(yaml@2.9.1)
 
   astro@7.3.8(esbuild@0.28.2)(yaml@2.9.1):
     dependencies:

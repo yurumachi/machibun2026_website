@@ -1,0 +1,41 @@
+---
+import { PortableText } from "astro-portabletext";
+import Base from "../../layouts/Base.astro";
+import SafeLink from "../../components/SafeLink.astro";
+import { YEAR, isoDate, jaDate, list, type Entry } from "../../lib/cms";
+
+interface Notice {
+	title: string;
+	date: string;
+	pinned?: number;
+	body?: unknown[];
+}
+
+export async function getStaticPaths() {
+	const notices = await list<Notice>("notices", YEAR);
+	return notices.map((n) => ({ params: { slug: n.slug ?? n.id }, props: { n } }));
+}
+
+const { n } = Astro.props as { n: Entry<Notice> };
+const date = new Date(n.data.date);
+---
+
+<Base title={n.data.title}>
+	<main id="main" class="section">
+		<div class="container reading detail">
+			<p><a href="/#news">お知らせの一覧へ戻る</a></p>
+			<header class="detail__header">
+				<p>
+					<time datetime={isoDate(date)}>{jaDate(date)}</time>
+					{n.data.pinned ? <span class="label">重要</span> : null}
+				</p>
+				<h1>{n.data.title}</h1>
+			</header>
+			{n.data.body && n.data.body.length > 0 && (
+				<div class="detail__body">
+					<PortableText value={n.data.body as never} components={{ mark: { link: SafeLink } }} />
+				</div>
+			)}
+		</div>
+	</main>
+</Base>
