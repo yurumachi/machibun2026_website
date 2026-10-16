@@ -1,0 +1,39 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "machibun-cms",
+	"main": "./src/worker.ts",
+	"compatibility_date": "2026-02-24",
+	"compatibility_flags": ["nodejs_compat"],
+	"observability": { "enabled": true },
+	"preview_urls": true,
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "machibun",
+			"database_id": "a9ce5dc4-8327-4cb5-84b1-dc8ca53cbaee",
+		},
+	],
+	"kv_namespaces": [
+		{ "binding": "MEDIA", "id": "8c115efcc8d74942b5be5e9275f88366" },
+		{ "binding": "SESSION", "id": "d9219de9ab9f4f74af67822991ce1aca" },
+	],
+	// Sandboxed plugins require Worker Loader, available on Workers paid plans. Uncomment to enable:
+	// "worker_loaders": [{ "binding": "LOADER" }],
+	// General maintenance cron trigger
+	"triggers": {
+		"crons": ["0 * * * *"],
+	},
+	"previews": {
+		"d1_databases": [
+			{
+				"binding": "DB",
+				"database_name": "machibun-preview",
+				"database_id": "11da7c36-a9dc-4fb9-bec1-8bc78328277c",
+			},
+		],
+		"kv_namespaces": [
+			{ "binding": "MEDIA", "id": "2ae641097d0d449589fce79a71056d81" },
+			{ "binding": "SESSION", "id": "346f84bf0a62489db258a863451895ae" },
+		],
+	},
+}

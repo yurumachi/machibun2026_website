@@ -1,0 +1,355 @@
+{
+	"$schema": "https://emdashcms.com/seed.schema.json",
+	"version": "1",
+	"defaultLocale": "ja",
+	"meta": {
+		"name": "まちナかぶんかさい",
+		"description": "まちナかぶんかさいの出展者・出演者・協賛・お知らせ",
+		"author": "ゆるまち委員会"
+	},
+	"settings": {
+		"title": "まちナかぶんかさい",
+		"tagline": "夜のマルシェとまちの踊り場",
+		"timezone": "Asia/Tokyo"
+	},
+	"collections": [
+		{
+			"slug": "exhibitors",
+			"label": "出展者",
+			"labelSingular": "出展者",
+			"urlPattern": "/exhibitors/{slug}",
+			"supports": ["drafts", "revisions", "search"],
+			"sortOrder": 1,
+			"admin": { "listColumns": ["year", "booth_number"] },
+			"fields": [
+				{ "slug": "year", "label": "年", "type": "integer", "required": true, "indexed": true, "defaultValue": 2026 },
+				{ "slug": "title", "label": "名前", "type": "string", "required": true, "searchable": true },
+				{ "slug": "category", "label": "カテゴリ", "type": "reference", "validation": { "targetCollection": "categories" } },
+				{ "slug": "catch", "label": "ひとこと", "type": "string", "searchable": true },
+				{
+					"slug": "photos",
+					"label": "写真（1枚目は一覧にも出る）",
+					"type": "repeater",
+					"validation": {
+						"maxItems": 3,
+						"subFields": [{ "slug": "image", "label": "写真", "type": "image", "required": true }]
+					}
+				},
+				{ "slug": "description", "label": "紹介文", "type": "text", "searchable": true },
+				{ "slug": "booth_number", "label": "出展場所の番号", "type": "string" },
+				{
+					"slug": "links",
+					"label": "リンク",
+					"type": "repeater",
+					"validation": {
+						"maxItems": 3,
+						"subFields": [
+							{ "slug": "label", "label": "リンクの名前", "type": "string", "required": true },
+							{ "slug": "url", "label": "URL", "type": "url", "required": true }
+						]
+					}
+				},
+				{
+					"slug": "previous",
+					"label": "前回の出展",
+					"type": "reference",
+					"validation": { "relation": "previous_exhibitor", "relationSide": "child" }
+				}
+			]
+		},
+		{
+			"slug": "performers",
+			"label": "出演者",
+			"labelSingular": "出演者",
+			"urlPattern": "/performers/{slug}",
+			"supports": ["drafts", "revisions", "search"],
+			"sortOrder": 2,
+			"admin": { "listColumns": ["year"] },
+			"fields": [
+				{ "slug": "year", "label": "年", "type": "integer", "required": true, "indexed": true, "defaultValue": 2026 },
+				{ "slug": "title", "label": "名前", "type": "string", "required": true, "searchable": true },
+				{ "slug": "photo", "label": "写真", "type": "image" },
+				{ "slug": "description", "label": "紹介文", "type": "text", "searchable": true },
+				{
+					"slug": "links",
+					"label": "リンク",
+					"type": "repeater",
+					"validation": {
+						"maxItems": 3,
+						"subFields": [
+							{ "slug": "label", "label": "リンクの名前", "type": "string", "required": true },
+							{ "slug": "url", "label": "URL", "type": "url", "required": true }
+						]
+					}
+				},
+				{
+					"slug": "previous",
+					"label": "前回の出展",
+					"type": "reference",
+					"validation": { "relation": "previous_performer", "relationSide": "child" }
+				}
+			]
+		},
+		{
+			"slug": "slots",
+			"label": "出演枠",
+			"labelSingular": "出演枠",
+			"routable": false,
+			"sortOrder": 3,
+			"dateField": "starts_at",
+			"admin": { "listColumns": ["year", "starts_at"] },
+			"fields": [
+				{ "slug": "year", "label": "年", "type": "integer", "required": true, "indexed": true, "defaultValue": 2026 },
+				{ "slug": "performer", "label": "出演者", "type": "reference", "required": true, "validation": { "targetCollection": "performers" } },
+				{ "slug": "stage", "label": "ステージ", "type": "reference", "required": true, "validation": { "targetCollection": "stages" } },
+				{ "slug": "starts_at", "label": "開始の時刻", "type": "datetime", "required": true, "indexed": true },
+				{ "slug": "ends_at", "label": "終了の時刻", "type": "datetime", "required": true }
+			]
+		},
+		{
+			"slug": "stages",
+			"label": "ステージ",
+			"labelSingular": "ステージ",
+			"routable": false,
+			"sortOrder": 4,
+			"admin": { "listColumns": ["year"] },
+			"fields": [
+				{ "slug": "year", "label": "年", "type": "integer", "required": true, "indexed": true, "defaultValue": 2026 },
+				{ "slug": "title", "label": "名前", "type": "string", "required": true }
+			]
+		},
+		{
+			"slug": "categories",
+			"label": "カテゴリ",
+			"labelSingular": "カテゴリ",
+			"routable": false,
+			"sortOrder": 5,
+			"admin": { "listColumns": ["year"] },
+			"fields": [
+				{ "slug": "year", "label": "年", "type": "integer", "required": true, "indexed": true, "defaultValue": 2026 },
+				{ "slug": "title", "label": "名前", "type": "string", "required": true }
+			]
+		},
+		{
+			"slug": "sponsors",
+			"label": "協賛",
+			"labelSingular": "協賛",
+			"routable": false,
+			"supports": ["drafts", "revisions", "search"],
+			"sortOrder": 6,
+			"admin": { "listColumns": ["year"] },
+			"fields": [
+				{ "slug": "year", "label": "年", "type": "integer", "required": true, "indexed": true, "defaultValue": 2026 },
+				{ "slug": "title", "label": "企業名", "type": "string", "required": true, "searchable": true },
+				{ "slug": "logo", "label": "ロゴ", "type": "image" },
+				{ "slug": "url", "label": "リンク", "type": "url" }
+			]
+		},
+		{
+			"slug": "notices",
+			"label": "お知らせ",
+			"labelSingular": "お知らせ",
+			"urlPattern": "/notices/{slug}",
+			"supports": ["drafts", "revisions", "search"],
+			"sortOrder": 7,
+			"dateField": "date",
+			"admin": { "listColumns": ["year", "date", "pinned"] },
+			"fields": [
+				{ "slug": "year", "label": "年", "type": "integer", "required": true, "indexed": true, "defaultValue": 2026 },
+				{ "slug": "title", "label": "タイトル", "type": "string", "required": true, "searchable": true },
+				{ "slug": "date", "label": "日付", "type": "datetime", "required": true, "indexed": true },
+				{ "slug": "body", "label": "本文", "type": "portableText", "searchable": true },
+				{ "slug": "pinned", "label": "一覧の上に固定する", "type": "boolean", "defaultValue": false }
+			]
+		}
+	],
+	"relations": [
+		{
+			"slug": "previous_exhibitor",
+			"parentCollection": "exhibitors",
+			"childCollection": "exhibitors",
+			"parentLabel": "前回の出展",
+			"childLabel": "次の年の出展",
+			"maxParentsPerChild": 1
+		},
+		{
+			"slug": "previous_performer",
+			"parentCollection": "performers",
+			"childCollection": "performers",
+			"parentLabel": "前回の出展",
+			"childLabel": "次の年の出展",
+			"maxParentsPerChild": 1
+		}
+	],
+	"content": {
+		"categories": [
+			{ "id": "cat-food", "status": "published", "data": { "year": 2026, "title": "フード" } },
+			{ "id": "cat-drink", "status": "published", "data": { "year": 2026, "title": "ドリンク" } },
+			{ "id": "cat-marche", "status": "published", "data": { "year": 2026, "title": "マルシェ" } },
+			{ "id": "cat-workshop", "status": "published", "data": { "year": 2026, "title": "ワークショップ" } }
+		],
+		"stages": [
+			{ "id": "stage-main", "status": "published", "data": { "year": 2026, "title": "メインステージ" } },
+			{ "id": "stage-talk", "status": "published", "data": { "year": 2026, "title": "語り場テント" } }
+		],
+		"exhibitors": [
+			{
+				"id": "ex-komeko",
+				"slug": "komeko-pan",
+				"status": "published",
+				"data": {
+					"year": 2026,
+					"title": "こめこパン工房",
+					"category": "$ref:cat-food",
+					"catch": "地元のお米でつくる、もちもちの米粉パン。",
+					"description": "長岡のお米を米粉にして、毎朝パンを焼いています。",
+					"booth_number": "A-1"
+				}
+			},
+			{
+				"id": "ex-coffee",
+				"slug": "machikado-coffee",
+				"status": "published",
+				"data": {
+					"year": 2026,
+					"title": "まちかどコーヒー",
+					"category": "$ref:cat-drink",
+					"catch": "夜だけの限定ブレンドを用意します。",
+					"booth_number": "A-2"
+				}
+			},
+			{
+				"id": "ex-yasai",
+				"slug": "nagaoka-oyasai",
+				"status": "published",
+				"data": {
+					"year": 2026,
+					"title": "長岡おやさい便",
+					"category": "$ref:cat-marche",
+					"catch": "朝どれの野菜を、まちなかで。",
+					"booth_number": "B-1"
+				}
+			},
+			{
+				"id": "ex-yugata",
+				"slug": "yugata",
+				"status": "published",
+				"data": {
+					"year": 2026,
+					"title": "古着とレコードの店 ゆうがた",
+					"category": "$ref:cat-marche",
+					"booth_number": "B-2"
+				}
+			},
+			{
+				"id": "ex-tsumami",
+				"slug": "tsumami-zaiku",
+				"status": "published",
+				"data": {
+					"year": 2026,
+					"title": "つまみ細工体験",
+					"category": "$ref:cat-workshop",
+					"catch": "布でつくる小さな花飾り。30分ほどでできます。",
+					"booth_number": "C-1"
+				}
+			},
+			{
+				"id": "ex-yakigashi",
+				"slug": "shinanogawa-yakigashi",
+				"status": "published",
+				"data": {
+					"year": 2026,
+					"title": "信濃川ほとりの焼き菓子屋さん（今年は新作のりんごタルトもあります）",
+					"category": "$ref:cat-food",
+					"catch": "りんごは長岡産。売り切れ次第終了です。今年は新作のりんごタルトと、焼きたてのフィナンシェ、季節のジャムも持っていきます。",
+					"booth_number": "A-3"
+				}
+			}
+		],
+		"performers": [
+			{
+				"id": "pf-opening",
+				"slug": "opening",
+				"status": "published",
+				"data": { "year": 2026, "title": "オープニング" }
+			},
+			{
+				"id": "pf-band",
+				"slug": "gakusei-band",
+				"status": "published",
+				"data": { "year": 2026, "title": "学生バンド" }
+			},
+			{
+				"id": "pf-talk",
+				"slug": "yume-no-katariba",
+				"status": "published",
+				"data": { "year": 2026, "title": "夢の語り場トーク「まちで、やってみたいこと」" }
+			}
+		],
+		"slots": [
+			{
+				"id": "slot-1",
+				"status": "published",
+				"data": { "year": 2026, "performer": "$ref:pf-opening", "stage": "$ref:stage-main", "starts_at": "2026-10-03T16:00:00+09:00", "ends_at": "2026-10-03T16:20:00+09:00" }
+			},
+			{
+				"id": "slot-2",
+				"status": "published",
+				"data": { "year": 2026, "performer": "$ref:pf-band", "stage": "$ref:stage-main", "starts_at": "2026-10-03T16:30:00+09:00", "ends_at": "2026-10-03T17:15:00+09:00" }
+			},
+			{
+				"id": "slot-3",
+				"status": "published",
+				"data": { "year": 2026, "performer": "$ref:pf-talk", "stage": "$ref:stage-talk", "starts_at": "2026-10-03T17:30:00+09:00", "ends_at": "2026-10-03T18:30:00+09:00" }
+			},
+			{
+				"id": "slot-4",
+				"status": "published",
+				"data": { "year": 2026, "performer": "$ref:pf-band", "stage": "$ref:stage-main", "starts_at": "2026-10-03T19:00:00+09:00", "ends_at": "2026-10-03T19:45:00+09:00" }
+			}
+		],
+		"sponsors": [
+			{ "id": "sp-a", "status": "published", "data": { "year": 2026, "title": "協賛企業A", "url": "https://example.com/" } },
+			{ "id": "sp-b", "status": "published", "data": { "year": 2026, "title": "協賛企業B", "url": "https://example.com/" } },
+			{ "id": "sp-c", "status": "published", "data": { "year": 2026, "title": "まちなか商店会C" } }
+		],
+		"notices": [
+			{
+				"id": "nt-rain",
+				"slug": "rain",
+				"status": "published",
+				"data": {
+					"year": 2026,
+					"title": "雨天時の開催について（小雨決行、荒天の場合は前日18時にお知らせします）",
+					"date": "2026-09-05T00:00:00+09:00",
+					"pinned": true,
+					"body": [
+						{ "_type": "block", "_key": "b0", "style": "normal", "children": [{ "_type": "span", "_key": "s0", "text": "小雨の場合は開催します。荒天で中止するときは、前日18時までにこのお知らせでお伝えします。" }] }
+					]
+				}
+			},
+			{
+				"id": "nt-exhibitors",
+				"slug": "exhibitors-decided",
+				"status": "published",
+				"data": {
+					"year": 2026,
+					"title": "出展者30組が決まりました",
+					"date": "2026-09-20T00:00:00+09:00",
+					"pinned": false
+				}
+			},
+			{
+				"id": "nt-call",
+				"slug": "performer-call",
+				"status": "published",
+				"data": {
+					"year": 2026,
+					"title": "ステージ出演者の募集を始めました",
+					"date": "2026-08-01T00:00:00+09:00",
+					"pinned": false
+				}
+			}
+		]
+	}
+}

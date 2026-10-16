@@ -9,10 +9,11 @@
 
 ## 環境
 
-- コマンドはコンテナの中で動かす: `docker compose run --rm dev <コマンド>`（作業ディレクトリは `site/`。repo 全体で動かすときは `-w /work` を付ける）。ホストに Node や npm を入れない。
+- コマンドはコンテナの中で動かす: `docker compose run --rm dev <コマンド>`（作業ディレクトリは `cms/`。公開サイトは `-w /work/web`、repo 全体で動かすときは `-w /work` を付ける）。`web/` のビルドは手元の CMS を読むので、動いている dev コンテナの中で `docker compose exec -w /work/web dev pnpm build` と打つ。ホストに Node や npm を入れない。
 - Python もコンテナの中の `uv run` で動かす。
-- Cloudflare の土台（D1・R2・Worker）は `cf` で扱い、wrangler を直接打たない。CMS の中身は MCP で扱う。
-- 本番の D1・R2 を直接書き換えない。試すのは手元かステージングで行う。
+- Cloudflare の土台（D1・KV・Worker）は `cf` で扱い、wrangler を直接打たない。CMS の中身は MCP で扱う。
+- Worker の設定は `cms/wrangler.jsonc` と `web/wrangler.jsonc` に書く。`cms/` のものは Astro のアダプターが、`web/` のものは Workers Builds の wrangler が読む。私たちは wrangler のコマンドを打たない。`cf` 用の `cloudflare.config.ts` には、Astro と EmDash が対応したら移る（ADR 0005）。
+- 本番の D1・KV を直接書き換えない。試すのは手元か Preview（feat ブランチの確認用の環境）で行う。
 
 ## git
 
