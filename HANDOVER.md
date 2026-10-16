@@ -46,7 +46,8 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
    - 公開サイトの `main` の Deploy Hook（`16247f9c-c315-4620-8343-4dabae9ce498`）を、管理画面の本番の secret `DEPLOY_HOOK_URL` に入れた。本番の管理画面で見本の出展者の公開を取り消すと公開サイトから消え、公開し直すと戻ることを確かめた（反映まで2分ほど）。
    - Deploy Hook の URL は `https://api.cloudflare.com/client/v4/workers/builds/deploy_hooks/<deploy_hook_uuid>`。作ったときの返事に URL は入らない。
    - 本番の公開サイトには、本番の CMS の見本のデータ（架空の出展者6組・お知らせ・協賛企業A〜C）が出ている。誰でも開ける。どうするか（そのまま、非公開、消す）は user が決める。
-   - Preview の管理画面の Deploy Hook は、まだ `feat/emdash-site`（`149a42e5-…`）を指している。このブランチを消すときに、作業中のブランチに付け替えるか外す。
+   - Preview の管理画面の Deploy Hook は、まだ `feat/emdash-site`（`149a42e5-…`）を指している。このブランチを消すときに、作業中のブランチに付け替えるか外す。付け替えたら、`cms/wrangler.jsonc` の `previews.vars.PUBLIC_SITE_URL` も、そのブランチの公開サイトの Preview に変える。
+   - 管理画面の「サイトを表示」は、EmDash の中で `/` に決め打ちされている。`cms/src/pages/index.astro` で、`/` を `PUBLIC_SITE_URL`（`cms/wrangler.jsonc` の `vars` と `previews.vars`）に転送する。EmDash の `siteUrl` は使わない（パスキーがそのホスト名に結び付くため）。
 6. EmDash は使える前提で進める（2026-10-16、user が決めた）。関門2の人による試し（user と学生、手順は emdash-gates.md）は後で行う。agent が通した結果は emdash-gates.md にある。試しのデータ（「関門2の試し」の出展者・お知らせ・出演者・出演枠）は、見本として残す。
    - （済み、2026-10-16）管理用の Preview で公開すると、公開サイトの Preview がビルドし直される。公開サイトの feat の Deploy Hook（`149a42e5-d57c-40b1-8484-b9f021b691c0`）を、管理画面の Worker の Preview の secret `DEPLOY_HOOK_URL` に置いた。
 7. （済み、2026-10-16）出展者の詳細ページ（`/exhibitors/<識別名>`）とお知らせのページ（`/notices/<識別名>`）を `web/` に作った。年は URL の頭（Worker の名前 `machibun2026`）に入れ、ページの URL には入れない。

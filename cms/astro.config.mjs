@@ -8,7 +8,6 @@ import emdash from "emdash/astro";
 export default defineConfig({
 	output: "server",
 	adapter: cloudflare(),
-	redirects: { "/": "/_emdash/admin" },
 	integrations: [
 		react(),
 		emdash({
