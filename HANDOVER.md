@@ -42,7 +42,7 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 5. PR を `main` に取り込むときの作業。**どれも、する前に user に聞く。**
    - 管理画面の本番用のビルドの設定（`f5bb4f2d-8eca-4204-9909-92f321b036be`）の `branch_includes` は、一時的に `["feat/emdash-site"]` のまま。取り込む直前に `["main"]` に戻す。
    - 公開サイトの本番は、`main` に `web/` が入るまでビルドできない（Import のときの最初のビルドは `root directory not found` で失敗した）。本番の `CMS_TOKEN` が正しいかも、そこで初めて確かめられる。
-   - 公開サイトの Deploy Hook（`main` のもの）を `cf builds deploy-hooks create machibun-website --branch main` で作り、管理画面の Worker の本番の secret `DEPLOY_HOOK_URL` に置く（`cf workers secrets update`）。いまの本番の secret には、調べる前に入れた feat の Deploy Hook が入っている。
+   - 公開サイトの Deploy Hook（`main` のもの）を `cf builds deploy-hooks create machibun-website --branch main` で作り、管理画面の Worker の本番の secret `DEPLOY_HOOK_URL` に置く（`cf workers secrets update`）。いまの本番には `DEPLOY_HOOK_URL` が無いので、本番の CMS で公開してもどの公開サイトもビルドし直されない。
    - Deploy Hook の URL は `https://api.cloudflare.com/client/v4/workers/builds/deploy_hooks/<deploy_hook_uuid>`。作ったときの返事に URL は入らない。
 6. 関門2を、管理用の Preview で user と学生で試す（手順は emdash-gates.md）。agent が通した結果は emdash-gates.md にある。試しのデータ（「関門2の試し」の出展者・お知らせ・出演者・出演枠）は、見本として残す。
    - （済み、2026-10-16）管理用の Preview で公開すると、公開サイトの Preview がビルドし直される。公開サイトの feat の Deploy Hook（`149a42e5-d57c-40b1-8484-b9f021b691c0`）を、管理画面の Worker の Preview の secret `DEPLOY_HOOK_URL` に置いた。
