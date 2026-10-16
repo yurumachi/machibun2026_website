@@ -435,7 +435,7 @@ tbody th { font-weight: var(--fw-bold); white-space: nowrap; }
 .section--blobbed .blob { z-index: -1; }
 .site-header__logo img { display: block; height: 36px; width: auto; }
 @media (max-width: 767px) { .hide-sm { display: none; } }
-.ticket__tagline span { display: inline-block; }
+.ticket__tagline span, .ticket__place span, .ticket__address span { display: inline-block; }
 /* 半券には補足色の文字（住所など）があるので、半券の背景を blob より手前に置いて文字の下に blob を入れない */
 .ticket__stub::before { z-index: -1; }
 /* ---------- ヘッダーの固定とスマホの下部タブバー ---------- */
