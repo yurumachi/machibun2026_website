@@ -58,7 +58,7 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 ## いまの状態
 
 - GitHub の repo は `yurumachi/machibun_website`（2026-10-16 に `machibun2026_website` から名前を変えた）。Workers Builds は repo の id でつながっていて、名前を変えたあとも、手でのビルドも push でのビルドも通った。
-- ブランチは `feat` と `main` だけ。いまの作業は `feat/emdash-site`。`main` は保護されていて、PR で取り込む。
+- 作業はタスクごとに `main` から `feat/<内容>` を切り、PR で取り込む（`main` は保護されている）。`feat/emdash-site` は PR #4 で取り込み済みで、Preview の Deploy Hook が指しているので残している。
 - 開発は Docker のコンテナで行う（Node 22・pnpm 11.9.0・uv）。ホストには Node を入れない。
 - EmDash は `cms/` にある（2026-10-16 に `site/` から名前を変えた）。公開ページは `web/` に移し（段2）、`cms/` は管理画面だけにした（段3）。
   - 中身の種類は `cms/seed/seed.json`。見本のデータも入っている。
