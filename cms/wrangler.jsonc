@@ -23,7 +23,9 @@
 	"triggers": {
 		"crons": ["0 * * * *"],
 	},
+	"vars": { "PUBLIC_SITE_URL": "https://machibun2026.yurumachi-yuruyuru.workers.dev" },
 	"previews": {
+		"vars": { "PUBLIC_SITE_URL": "https://feat-emdash-site-machibun2026.yurumachi-yuruyuru.workers.dev" },
 		"d1_databases": [
 			{
 				"binding": "DB",
