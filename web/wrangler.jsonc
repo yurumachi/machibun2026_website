@@ -1,6 +1,6 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "machibun-website",
+	"name": "machibun2026",
 	"compatibility_date": "2026-02-24",
 	"preview_urls": true,
 	"previews": {},

@@ -4,7 +4,7 @@ EmDash は入力の場所（管理画面と編集用の鍵のフォーム）に�
 
 理由は CPU の上限だ。Workers の無料プランでは、1回のアクセスに使える CPU が 10ms までで、有料プランにはしない。EmDash がアクセスのたびにトップページを組み立てると 70〜100ms かかった（`docs/notes/emdash-gates.md`）。参照をやめても 10ms は下回らない。静的なファイルは Worker を通らないので、上限にかからない。
 
-同じ repo に `cms/`（EmDash、Worker `machibun-cms`）と `web/`（公開サイト、Worker `machibun-website`）を置く。公開・公開の取り消し・削除、公開中のものの保存があると、`cms/` のプラグインのフックが `web/` の Deploy Hook を呼び、公開サイトがビルドし直される。
+同じ repo に `cms/`（EmDash、Worker `machibun-cms`）と `web/`（公開サイト、Worker `machibun2026`。年の名前を付け、URL は `machibun2026.yurumachi-yuruyuru.workers.dev`）を置く。公開・公開の取り消し・削除、公開中のものの保存があると、`cms/` のプラグインのフックが `web/` の Deploy Hook を呼び、公開サイトがビルドし直される。
 
 ## Considered Options
 
