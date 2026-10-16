@@ -7,7 +7,7 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 | 項目 | 決まったこと |
 |---|---|
 | フォルダ | `cms/`（EmDash。2026-10-16 に `site/` から名前を変えた）と `web/`（公開サイト、Astro の静的なサイト）を同じ repo に置く |
-| Worker | もとの `machibun-website` の名前を `machibun-cms` に変えた。公開サイト用に `machibun-website` を新しく作った（静的なファイルだけ）。パスキーはホスト名に結び付くので、管理者は作り直した |
+| Worker | もとの `machibun-website` の名前を `machibun-cms` に変えた。公開サイト用の Worker を新しく作り、名前を `machibun2026`（URL は `machibun2026.yurumachi-yuruyuru.workers.dev`）にした（静的なファイルだけ）。ページの URL には年を入れない。パスキーはホスト名に結び付くので、管理者は作り直した |
 | 中身の受け渡し | `web/` のビルドで、CMS の REST API を読むだけの API token（`content:read`・`media:read`）で読む。`web/` の Preview は CMS の Preview を、本番は CMS の本番を読む。token も分ける |
 | ビルドし直すきっかけ | 公開・公開の取り消し・削除、公開中のものの保存があると、`cms/` のプラグインのフックが `web/` の Deploy Hook を呼ぶ。下書きの保存では呼ばない。コードの変更では、ビルドの設定の `path-includes` で `cms/**`・`web/**` ごとに絞る |
 | 写真 | 元は KV のまま（ADR 0004）。`web/` のビルドで取ってきて縮め、公開サイトから配る |
@@ -36,13 +36,13 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
    - Worker の名前を `machibun-cms` に変えた。`cf` に名前を変えるコマンドが無いので、user が画面で変えた。ビルドの設定と D1・KV とのつながりは、名前を変えても残った。
    - 管理画面のビルドの設定の root を `/cms` に、ビルドが動くフォルダを `cms/*` にした。
    - 本番と Preview の D1 を作り直し、user が両方で管理者を作った。Preview は、最初のパスキー登録に失敗してパスキーの無い管理者が残ったので、もう一度作り直した。
-   - 公開サイトの Worker `machibun-website` は、user が画面の「リポジトリをインポート」で作った。`cf` では Git につないだ Worker を新しく作れない。
+   - 公開サイトの Worker（今の名前は `machibun2026`）は、user が画面の「リポジトリをインポート」で作った。`cf` では Git につないだ Worker を新しく作れない。
    - 両方の管理画面で読むだけの token（`web-build-read`）を作り、公開サイトのビルドの設定の変数 `CMS_TOKEN`（シークレット）に入れた。token は会話を通さず、user の端末で入れた。
-   - 公開サイトの Preview: https://feat-emdash-site-machibun-website.yurumachi-yuruyuru.workers.dev 。Preview の CMS を読んでビルドが通った。
+   - 公開サイトの Preview: https://feat-emdash-site-machibun2026.yurumachi-yuruyuru.workers.dev 。Preview の CMS を読んでビルドが通った。
 5. PR を `main` に取り込むときの作業。**どれも、する前に user に聞く。**
    - 管理画面の本番用のビルドの設定（`f5bb4f2d-8eca-4204-9909-92f321b036be`）の `branch_includes` は、一時的に `["feat/emdash-site"]` のまま。取り込む直前に `["main"]` に戻す。
    - 公開サイトの本番は、`main` に `web/` が入るまでビルドできない（Import のときの最初のビルドは `root directory not found` で失敗した）。本番の `CMS_TOKEN` が正しいかも、そこで初めて確かめられる。
-   - 公開サイトの Deploy Hook（`main` のもの）を `cf builds deploy-hooks create machibun-website --branch main` で作り、管理画面の Worker の本番の secret `DEPLOY_HOOK_URL` に置く（`cf workers secrets update`）。いまの本番には `DEPLOY_HOOK_URL` が無いので、本番の CMS で公開してもどの公開サイトもビルドし直されない。
+   - 公開サイトの Deploy Hook（`main` のもの）を `cf builds deploy-hooks create machibun2026 --branch main` で作り、管理画面の Worker の本番の secret `DEPLOY_HOOK_URL` に置く（`cf workers secrets update`）。いまの本番には `DEPLOY_HOOK_URL` が無いので、本番の CMS で公開してもどの公開サイトもビルドし直されない。
    - Deploy Hook の URL は `https://api.cloudflare.com/client/v4/workers/builds/deploy_hooks/<deploy_hook_uuid>`。作ったときの返事に URL は入らない。
 6. EmDash は使える前提で進める（2026-10-16、user が決めた）。関門2の人による試し（user と学生、手順は emdash-gates.md）は後で行う。agent が通した結果は emdash-gates.md にある。試しのデータ（「関門2の試し」の出展者・お知らせ・出演者・出演枠）は、見本として残す。
    - （済み、2026-10-16）管理用の Preview で公開すると、公開サイトの Preview がビルドし直される。公開サイトの feat の Deploy Hook（`<deploy_hook_uuid>`）を、管理画面の Worker の Preview の secret `DEPLOY_HOOK_URL` に置いた。
@@ -51,7 +51,7 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 
 ## いまの状態
 
-- GitHub の repo は `yurumachi/machibun_website`（2026-10-16 に `machibun2026_website` から名前を変えた）。Workers Builds は repo の id でつながっていて、名前を変えたあとも手でのビルドは通った。push でビルドが始まるかは、次の push で確かめる。
+- GitHub の repo は `yurumachi/machibun_website`（2026-10-16 に `machibun2026_website` から名前を変えた）。Workers Builds は repo の id でつながっていて、名前を変えたあとも、手でのビルドも push でのビルドも通った。
 - ブランチは `feat` と `main` だけ。いまの作業は `feat/emdash-site`。`main` は保護されていて、PR で取り込む。
 - 開発は Docker のコンテナで行う（Node 22・pnpm 11.9.0・uv）。ホストには Node を入れない。
 - EmDash は `cms/` にある（2026-10-16 に `site/` から名前を変えた）。公開ページは `web/` に移し（段2）、`cms/` は管理画面だけにした（段3）。
@@ -59,12 +59,12 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
   - トップページは `web/src/pages/index.astro`。キャッチコピー・開催日・会場は HTML に直接書いている。
 - 画像は KV（`MEDIA`）に置く（ADR 0004）。置き場所の処理は `cms/src/storage/kv.ts`。
 - Worker の設定は `cms/wrangler.jsonc` と `web/wrangler.jsonc`（ADR 0005）。
-- Worker は2つ。管理画面 `machibun-cms`（id `b1c4e98112cc462e8d3a029fcb4e33c8`）と、公開サイト `machibun-website`（id `fe28605a553a4d6b99d5fa1276217d3d`）。
+- Worker は2つ。管理画面 `machibun-cms`（id `b1c4e98112cc462e8d3a029fcb4e33c8`）と、公開サイト `machibun2026`（id `fe28605a553a4d6b99d5fa1276217d3d`）。
 - 環境は3つで、データはつながない。
   - 手元（コンテナ）: `cms/.wrangler/` に保存する。seed から作り、いつでも作り直せる。
   - Preview: Cloudflare の Worker Previews。D1・KV は `cms/wrangler.jsonc` の `previews` に書いた Preview 用のものを、すべての Preview で共有する。URL は `<Preview の名前>-<Worker の名前>.yurumachi-yuruyuru.workers.dev` で、名前はふつうブランチ名から作られる。
     - 管理用の Preview（固定）: https://preview-machibun-cms.yurumachi-yuruyuru.workers.dev/_emdash/admin 。管理者は user が作った（2026-10-16、パスキー）。
-    - 公開サイトの Preview: https://feat-emdash-site-machibun-website.yurumachi-yuruyuru.workers.dev 。Preview の CMS を読む。
+    - 公開サイトの Preview: https://feat-emdash-site-machibun2026.yurumachi-yuruyuru.workers.dev 。Preview の CMS を読む。
   - 本番: 管理画面は https://machibun-cms.yurumachi-yuruyuru.workers.dev/_emdash/admin（D1 は 2026-10-16 に作り直し、user が管理者を作った）。公開サイトの本番は、`main` に取り込むまで空。
 - デプロイは Cloudflare の Git 連携（Workers Builds）で行い、Cloudflare の側で wrangler が動く（私たちは打たない）。ビルドの設定は1つの Worker に2つまで。
   - 管理画面の本番用（`f5bb4f2d-8eca-4204-9909-92f321b036be`）: `npx wrangler deploy`。root は `/cms`、`cms/*` が変わったときだけ。
