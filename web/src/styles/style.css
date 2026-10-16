@@ -539,5 +539,6 @@ html { scroll-padding-block: calc(var(--header-h) + var(--space-2)) calc(var(--t
 .detail__text { white-space: pre-line; }
 .detail__facts { display: grid; gap: var(--space-2); }
 .detail__facts dt { font-weight: var(--fw-bold); }
+.detail__facts dd { margin: 0; }
 .detail__facts ul { padding-left: 1.25em; }
 .detail__body { display: grid; gap: var(--space-2); }
