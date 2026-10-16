@@ -42,8 +42,10 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 5. PR を `main` に取り込むときの作業。**どれも、する前に user に聞く。**
    - 管理画面の本番用のビルドの設定（`f5bb4f2d-8eca-4204-9909-92f321b036be`）の `branch_includes` は、一時的に `["feat/emdash-site"]` のまま。取り込む直前に `["main"]` に戻す。
    - 公開サイトの本番は、`main` に `web/` が入るまでビルドできない（Import のときの最初のビルドは `root directory not found` で失敗した）。本番の `CMS_TOKEN` が正しいかも、そこで初めて確かめられる。
-   - 公開サイトの Deploy Hook（`main` のもの）を `cf builds deploy-hooks create` で作り、管理画面の Worker の secret `DEPLOY_HOOK_URL` に置く。Worker の secret は本番と Preview で共有されるので、Preview の管理画面で公開しても本番の公開サイトがビルドし直される。本番の公開サイトは本番の CMS を読むので、Preview の中身は出ない。公開サイトの Preview は、push かビルドのやり直しで作り直す。
-6. 関門2を、管理用の Preview で user と学生で試す（手順は emdash-gates.md）。
+   - 公開サイトの Deploy Hook（`main` のもの）を `cf builds deploy-hooks create machibun-website --branch main` で作り、管理画面の Worker の本番の secret `DEPLOY_HOOK_URL` に置く（`cf workers secrets update`）。いまの本番の secret には、調べる前に入れた feat の Deploy Hook が入っている。
+   - Deploy Hook の URL は `https://api.cloudflare.com/client/v4/workers/builds/deploy_hooks/<deploy_hook_uuid>`。作ったときの返事に URL は入らない。
+6. 関門2を、管理用の Preview で user と学生で試す（手順は emdash-gates.md）。agent が通した結果は emdash-gates.md にある。試しのデータ（「関門2の試し」の出展者・お知らせ・出演者・出演枠）は、見本として残す。
+   - （済み、2026-10-16）管理用の Preview で公開すると、公開サイトの Preview がビルドし直される。公開サイトの feat の Deploy Hook（`<deploy_hook_uuid>`）を、管理画面の Worker の Preview の secret `DEPLOY_HOOK_URL` に置いた。
 7. 出展者の詳細ページとお知らせのページを `web/` に作る。
 8. PageSpeed（本番、モバイル 59 点）で出た、フォントと画像の重さを直す。Google Fonts の Noto Sans JP（CSS 60KB、フォント 720KB）が表示を止めている。イラストが表示の大きさより大きい。
 
@@ -93,6 +95,7 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 
 - EmDash のパスキーは、URL のホスト名に結び付く。Worker 名・workers.dev のサブドメイン・ドメインを変えると、作ったパスキーではログインできない。
 - 空のデータベースで最初に管理画面を開いた人が、管理者を作れる。デプロイしたら、すぐに管理者を作る。
+- Worker Previews の secret は、本番の secret と別に持つ。画面の「設定」→ 変数とシークレットで、環境に「プレビュー」を選んで入れる（Preview の base config）。base config は、これから作る Preview にだけ付く。今ある Preview に付けるには、`cf previews delete <名前> --worker machibun-cms --force` で消してビルドし直す（同じ URL・同じ D1 で作り直されるので、パスキーと中身はそのまま）。`cf` には Preview の secret を入れるコマンドが無く、wrangler は `cf` のログインを使えない。
 - 作ったばかりの D1 では、最初のアクセスで表を作る。その1回目は `SETUP_STATUS_ERROR` や `NOT_CONFIGURED` を返すが、2回目からは返らない。
 - `cf d1 delete` は、対話できない端末では `--force` が要る。agent が打つと Claude Code の安全確認で止まるので、user が `!` で打つ。
 - 写真が縮められず元のまま出ているのは、`siteUrl`（`EMDASH_SITE_URL`）が無く、EmDash が `image.remotePatterns` を足さないため。公開サイトをビルドで作るなら、この直しは要らない。
