@@ -10,7 +10,7 @@
 		{
 			"binding": "DB",
 			"database_name": "machibun",
-			"database_id": "c7349d56-5024-47bc-b3aa-905af1664633",
+			"database_id": "a9ce5dc4-8327-4cb5-84b1-dc8ca53cbaee",
 		},
 	],
 	"kv_namespaces": [
@@ -28,7 +28,7 @@
 			{
 				"binding": "DB",
 				"database_name": "machibun-preview",
-				"database_id": "9af2f4b3-ccc7-41f6-892b-50434720730d",
+				"database_id": "44d8aa9f-1868-49ec-a129-ce65d74037d0",
 			},
 		],
 		"kv_namespaces": [
