@@ -40,11 +40,13 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
    - 公開サイトの Worker（今の名前は `machibun2026`）は、user が画面の「リポジトリをインポート」で作った。`cf` では Git につないだ Worker を新しく作れない。
    - 両方の管理画面で読むだけの token（`web-build-read`）を作り、公開サイトのビルドの設定の変数 `CMS_TOKEN`（シークレット）に入れた。token は会話を通さず、user の端末で入れた。
    - 公開サイトの Preview: https://feat-emdash-site-machibun2026.yurumachi-yuruyuru.workers.dev 。Preview の CMS を読んでビルドが通った。
-5. PR を `main` に取り込むときの作業。**どれも、する前に user に聞く。**
-   - 管理画面の本番用のビルドの設定（`f5bb4f2d-8eca-4204-9909-92f321b036be`）の `branch_includes` は、一時的に `["feat/emdash-site"]` のまま。取り込む直前に `["main"]` に戻す。
-   - 公開サイトの本番は、`main` に `web/` が入るまでビルドできない（Import のときの最初のビルドは `root directory not found` で失敗した）。本番の `CMS_TOKEN` が正しいかも、そこで初めて確かめられる。
-   - 公開サイトの Deploy Hook（`main` のもの）を `cf builds deploy-hooks create machibun2026 --branch main` で作り、管理画面の Worker の本番の secret `DEPLOY_HOOK_URL` に置く（`cf workers secrets update`）。いまの本番には `DEPLOY_HOOK_URL` が無いので、本番の CMS で公開してもどの公開サイトもビルドし直されない。
+5. （済み、2026-10-17）PR #4 を `main` に取り込んだ（merge commit `2277df2`）。
+   - 取り込む前に、管理画面の本番用のビルドの設定（`f5bb4f2d-…`）を `main` に、Preview 用（`7346b588-…`）を「`main` 以外」に戻した。
+   - 公開サイトの本番 https://machibun2026.yurumachi-yuruyuru.workers.dev は、本番の CMS を読んで初めてのビルドが通った。本番の `CMS_TOKEN` も正しかった。
+   - 公開サイトの `main` の Deploy Hook（`16247f9c-c315-4620-8343-4dabae9ce498`）を、管理画面の本番の secret `DEPLOY_HOOK_URL` に入れた。本番の管理画面で見本の出展者の公開を取り消すと公開サイトから消え、公開し直すと戻ることを確かめた（反映まで2分ほど）。
    - Deploy Hook の URL は `https://api.cloudflare.com/client/v4/workers/builds/deploy_hooks/<deploy_hook_uuid>`。作ったときの返事に URL は入らない。
+   - 本番の公開サイトには、本番の CMS の見本のデータ（架空の出展者6組・お知らせ・協賛企業A〜C）が出ている。誰でも開ける。どうするか（そのまま、非公開、消す）は user が決める。
+   - Preview の管理画面の Deploy Hook は、まだ `feat/emdash-site`（`149a42e5-…`）を指している。このブランチを消すときに、作業中のブランチに付け替えるか外す。
 6. EmDash は使える前提で進める（2026-10-16、user が決めた）。関門2の人による試し（user と学生、手順は emdash-gates.md）は後で行う。agent が通した結果は emdash-gates.md にある。試しのデータ（「関門2の試し」の出展者・お知らせ・出演者・出演枠）は、見本として残す。
    - （済み、2026-10-16）管理用の Preview で公開すると、公開サイトの Preview がビルドし直される。公開サイトの feat の Deploy Hook（`149a42e5-d57c-40b1-8484-b9f021b691c0`）を、管理画面の Worker の Preview の secret `DEPLOY_HOOK_URL` に置いた。
 7. （済み、2026-10-16）出展者の詳細ページ（`/exhibitors/<識別名>`）とお知らせのページ（`/notices/<識別名>`）を `web/` に作った。年は URL の頭（Worker の名前 `machibun2026`）に入れ、ページの URL には入れない。
@@ -68,10 +70,10 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
   - Preview: Cloudflare の Worker Previews。D1・KV は `cms/wrangler.jsonc` の `previews` に書いた Preview 用のものを、すべての Preview で共有する。URL は `<Preview の名前>-<Worker の名前>.yurumachi-yuruyuru.workers.dev` で、名前はふつうブランチ名から作られる。
     - 管理用の Preview（固定）: https://preview-machibun-cms.yurumachi-yuruyuru.workers.dev/_emdash/admin 。管理者は user が作った（2026-10-16、パスキー）。
     - 公開サイトの Preview: https://feat-emdash-site-machibun2026.yurumachi-yuruyuru.workers.dev 。Preview の CMS を読む。
-  - 本番: 管理画面は https://machibun-cms.yurumachi-yuruyuru.workers.dev/_emdash/admin（D1 は 2026-10-16 に作り直し、user が管理者を作った）。公開サイトの本番は、`main` に取り込むまで空。
+  - 本番: 管理画面は https://machibun-cms.yurumachi-yuruyuru.workers.dev/_emdash/admin（D1 は 2026-10-16 に作り直し、user が管理者を作った）。公開サイトは https://machibun2026.yurumachi-yuruyuru.workers.dev 。
 - デプロイは Cloudflare の Git 連携（Workers Builds）で行い、Cloudflare の側で wrangler が動く（私たちは打たない）。ビルドの設定は1つの Worker に2つまで。
   - 管理画面の本番用（`f5bb4f2d-8eca-4204-9909-92f321b036be`）: `npx wrangler deploy`。root は `/cms`、`cms/*` が変わったときだけ。
-  - 管理画面の Preview 用（`7346b588-71ae-4cc3-a389-82df061055f2`）: `main` と `feat/emdash-site` 以外を push すると `npx wrangler preview`。画面からは作れず、`cf builds triggers create` で作った。
+  - 管理画面の Preview 用（`7346b588-71ae-4cc3-a389-82df061055f2`）: `main` 以外を push すると `npx wrangler preview`。画面からは作れず、`cf builds triggers create` で作った。
   - 管理用の Preview は、Preview 用の設定を一時的に `npx wrangler preview --name preview` にし、`cf builds create <設定の id> --branch feat/emdash-site` で1回出して、元に戻した。
   - 公開サイトの本番用（`1bcd7adb-cc10-44f3-85f8-f53f2a161bd2`）: `main`、root は `/web`、`web/*` が変わったときだけ。変数 `CMS_URL`（本番の CMS）と `CMS_TOKEN`（シークレット）。
   - 公開サイトの Preview 用（`6e95cff8-3daf-47e0-866d-37905eed12ab`）: `main` 以外、`web/*` が変わったときだけ `npx wrangler preview`。変数は Preview の CMS のもの。`cf builds triggers create` は `--path-excludes` を求めるので、`--body` で作った。
