@@ -16,7 +16,7 @@ Preview の公開サイトは、Cloudflare Access で見られる人を絞る。
 ## Consequences
 
 - 中身を何度も変えて見た目を確かめる作業は、手元の開発サーバーで行う（ページを開くたびに CMS を読み直すので、ビルドが要らない）。Preview は、人に見せたりスマホで確かめたりするために使う。
-- 2つの Worker の Preview 用のビルドの設定は、`preview` ブランチだけを対象にする。作業ブランチを push しても Preview は出ない。
+- 2つの Worker の Preview 用のビルドの設定は、`preview` ブランチのときだけビルドとデプロイをする。Preview 用の設定のブランチの絞り込みは「main 以外の全部」から変えられないので、コマンドの中で `WORKERS_CI_BRANCH` を見て止める。作業ブランチを push しても Preview は出ない。
 - `preview` を `main` に取り込むと、`preview` にあるものが全部本番に出る。やめた作業は `preview` で revert してから `main` に取り込む。
 - `preview` から `main` へは merge commit で取り込む（squash しない）。squash すると `preview` と `main` の履歴が分かれ、次の取り込みで同じ変更が食い違う。
 - `main` に直接入れた直し（急ぎのもの）があれば、`main` を `preview` に取り込んで追いつかせる。
