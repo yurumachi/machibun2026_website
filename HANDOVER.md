@@ -45,7 +45,7 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
    - 公開サイトの本番 https://machibun2026.yurumachi-yuruyuru.workers.dev は、本番の CMS を読んで初めてのビルドが通った。本番の `CMS_TOKEN` も正しかった。
    - 公開サイトの `main` の Deploy Hook を、管理画面の本番の secret `DEPLOY_HOOK_URL` に入れた。本番の管理画面で見本の出展者の公開を取り消すと公開サイトから消え、公開し直すと戻ることを確かめた（反映まで2分ほど）。
    - Deploy Hook の URL は `https://api.cloudflare.com/client/v4/workers/builds/deploy_hooks/<id>`。作ったときの返事に URL は入らない。URL を知っていれば誰でもビルドを始められるので、id は repo にも会話にも書かない（2026-10-17、HANDOVER に書いていた id を全履歴から消し、Hook を作り直した）。
-   - 本番の公開サイトには、本番の CMS の見本のデータ（架空の出展者6組・お知らせ・協賛企業A〜C）が出ている。誰でも開ける。どうするか（そのまま、非公開、消す）は user が決める。
+   - 本番の CMS の見本のデータ（出展者・出演枠・お知らせ・協賛・出演者・ステージ・カテゴリの25件）は、2026-10-17 に user の判断で、ゴミ箱からも消した。Preview の試しのデータは残している。
    - 管理画面の「サイトを表示」は、EmDash の中で `/` に決め打ちされている。`cms/src/pages/index.astro` で、`/` を `PUBLIC_SITE_URL`（`cms/wrangler.jsonc` の `vars` と `previews.vars`）に転送する。EmDash の `siteUrl` は使わない（パスキーがそのホスト名に結び付くため）。
 6. EmDash は使える前提で進める（2026-10-16、user が決めた）。関門2の人による試し（user と学生、手順は emdash-gates.md）は後で行う。agent が通した結果は emdash-gates.md にある。試しのデータ（「関門2の試し」の出展者・お知らせ・出演者・出演枠）は、見本として残す。
    - （済み、2026-10-16）管理用の Preview で公開すると、公開サイトの Preview がビルドし直される。公開サイトの feat の Deploy Hook を、管理画面の Worker の Preview の secret `DEPLOY_HOOK_URL` に置いた。
@@ -62,6 +62,10 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
    6. （止めている、2026-10-17）公開サイトの Preview の URL に Cloudflare Access をかける。本番も `workers.dev` なので、Preview の URL だけにかけられるかを先に確かめる。管理画面の Preview にはかけない（ビルドがその API を読むため）。 Access を使うには、先にアカウントで Zero Trust を始める（無料プラン、チーム名は `yurumachi` にするつもり）必要があり、申し込みでクレジットカードの登録を求められる。登録してよいかを user だけでは決められないので止めた。許す人は、メールアドレス2つ（user が決めた。公開の repo なので、ここには書かない）と、GitHub の org `yurumachi` のメンバーにするつもり。GitHub の org には、Access のログイン用の OAuth App を user が作った（Redirect URI は `https://yurumachi.cloudflareaccess.com/cdn-cgi/access/callback`）。Access の画面は、Worker の設定の「Access」のタブから入る。
    7. （済み、2026-10-17）古いものを消した。古い Deploy Hook 2つを消した。Workers Builds はブランチごとに Preview を自動で作り（`auto_delete: true`）、GitHub でブランチを消すとその Preview も消える。`feat-emdash-site` などの古い Preview は、ブランチを消したときに消えていた。
 
+10. （済み、2026-10-17）一覧が空のとき、トップページに「お知らせはまだありません」「決まり次第お知らせします」の文を出す（`web/src/pages/index.astro`）。本番の見本を消したので、本番は今この表示になっている。
+11. （済み、2026-10-17）本番の公開サイトに Cloudflare Web Analytics を入れた（クレジットカードは要らなかった）。`cf rum site-info create` で作ったサイト（host は `machibun2026.yurumachi-yuruyuru.workers.dev`）の beacon を、`WORKERS_CI_BRANCH` が `main` のビルドにだけ入れる（`web/src/layouts/Base.astro`）。数は Cloudflare の画面の Web Analytics で見る。`machibun2026` の Workers Logs は、Worker のコードが無く静的なファイルだけなので、有効にしてもほとんど残らないと考えて入れていない。
+12. （2026-10-17）管理画面を最初から日本語で出す。EmDash は Cookie `emdash-locale` → ブラウザの言語 → 英語 の順で言語を選ぶので、`cms/src/middleware.ts` で、Cookie が無い人に `emdash-locale=ja` を付けて開き直させる。画面で英語を選んだ人の Cookie はそのまま使う。
+13. トップページの時間「16:00〜21:00」は、まだ決まっていない（user、2026-10-17）。今は直さない。アクセス「JR長岡駅 大手口から徒歩5分」は、新潟県の観光情報サイトの「徒歩約5分」と合っていた。
 ## いまの状態
 
 - GitHub の repo は `yurumachi/machibun_website`（2026-10-16 に `machibun2026_website` から名前を変えた）。Workers Builds は repo の id でつながっていて、名前を変えたあとも、手でのビルドも push でのビルドも通った。
