@@ -52,7 +52,11 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 7. （済み、2026-10-16）出展者の詳細ページ（`/exhibitors/<識別名>`）とお知らせのページ（`/notices/<識別名>`）を `web/` に作った。年は URL の頭（Worker の名前 `machibun2026`）に入れ、ページの URL には入れない。
    - 紹介文（`text` の項目）は、管理画面では「Enter markdown content...」と案内されるが、公開サイトではマークダウンとして描かず、改行だけ生かした文章で出す。マークダウンを HTML にすると、出展者が書いた危ない HTML を消す処理まで要るため。`**` などはそのまま出る。
    - お知らせの本文（Portable Text）は `astro-portabletext` で描く。リンクは `http`・`https`・`mailto`・`tel` だけ通す。本文の中の画像は、まだ描かない（出ない）。
-8. PageSpeed の直しは別の issue で行う: フォント（#2）、イラストの大きさ（#3）。
+8. PageSpeed の直し（フォントは #2、イラストの大きさは #3）。点の測り直しは `preview` に取り込んでから行う。
+   - （2026-10-17、`feat/font-nonblocking`）フォント（#2）: Google Fonts の CSS を `media="print"` で読み、読み終えたら `all` に切り替える（`Base.astro`）。CSS を待たずに端末のフォントで先に表示し、届いたら Noto Sans JP に替わる。読み込む `@font-face` は減らしていない（前に本番で測ったときのフォントは約 720KB。表示する文字とキャッシュで変わる）。Astro の Fonts API で自前で配る方法も試したが、Google の CSS（約 245 の `@font-face`）が全ページの `<style>` に埋め込まれ、トップページの HTML が gzip で 4KB から 67KB に増えたのでやめた。
+   - 点の測り直しは PageSpeed の画面（pagespeed.web.dev）で行う。API（`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=<URL>&strategy=mobile`）は、key が無いと共有の1日の上限に当たって断られた（2026-10-17）。本番は一覧が空、Preview には試しのデータがあるので、比べるときは同じ環境の前後で比べる。
+   - 取り込む前の Preview（2026-10-17 17:50、Lighthouse 13.5.0）: モバイル 66 点（FCP 5.3s・LCP 5.4s・CLS 0、表示を止める読み込みの見込みの短縮 5,250ms）、デスクトップ 95 点（FCP 1.1s・CLS 0.001）。取り込んだ後に同じ画面で測り、FCP と CLS を比べる。
+   - （2026-10-17、`feat/illust-resize`）イラスト（#3）: `web/public/assets/illust/` を `web/src/assets/illust/` に移し、`astro:assets` の `<Image>` で、CSS で出す最大の幅（px）の 1 倍と 2 倍に縮める（`densities`）。CSS の幅を変えたら `index.astro` の `width` も変える。全体の `layout: "constrained"` の CSS が位置の指定とぶつからないよう、イラストは `layout="none"` にした。一番大きい talk は 640px・24KB から、224px・8KB と 448px・21KB になった。取り込む前の Preview の「Improve image delivery」は、モバイル 39KiB、デスクトップ 65KiB（2026-10-17 17:50）。
 9. （2026-10-17 に決めた。6 の Access のほかは済んだ）作業は feat → `preview` → `main` の順に取り込み、Preview は `preview` ブランチの1組（管理画面 `preview-machibun-cms` と公開サイト `preview-machibun2026`）だけにする（ADR 0007）。Preview の CMS の Hook が1つのブランチしかビルドし直せないため。次の順で設定する。Cloudflare と GitHub の設定を変える前と、消す前には user に確かめる。
    1. （済み、2026-10-17）2つの Worker の Preview 用のビルドの設定（`7346b588-…`、`6e95cff8-…`）で、`preview` ブランチのときだけビルドとデプロイをする。Preview 用の設定の `branch_includes`・`branch_excludes` は `["*"]`・`["main"]` から変えられない（API が `Invalid request body` を返す。本番用の設定は変えられる）。そこで、ビルドのコマンドを `[ "$WORKERS_CI_BRANCH" != preview ] || pnpm build`、デプロイのコマンドを `[ "$WORKERS_CI_BRANCH" != preview ] || npx wrangler preview` にした。作業ブランチを push すると、ビルドは始まるが、依存を入れたところで何もせずに終わる。ブランチ名 `preview` から、今と同じ `preview-machibun-cms` ができる。
    2. （済み、2026-10-17）PR #6（ADR 0007・AGENTS.md・`previews.vars.PUBLIC_SITE_URL` を `preview-machibun2026…` に）を `main` に取り込んだ。
@@ -66,6 +70,27 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 11. （済み、2026-10-17）本番の公開サイトに Cloudflare Web Analytics を入れた（クレジットカードは要らなかった）。`cf rum site-info create` で作ったサイト（host は `machibun2026.yurumachi-yuruyuru.workers.dev`）の beacon を、`WORKERS_CI_BRANCH` が `main` のビルドにだけ入れる（`web/src/layouts/Base.astro`）。数は Cloudflare の画面の Web Analytics で見る。`machibun2026` の Workers Logs は、Worker のコードが無く静的なファイルだけなので、有効にしてもほとんど残らないと考えて入れていない。
 12. （2026-10-17）管理画面を最初から日本語で出す。EmDash は Cookie `emdash-locale` → ブラウザの言語 → 英語 の順で言語を選ぶので、`cms/src/middleware.ts` で、Cookie が無い人に `emdash-locale=ja` を付けて開き直させる。画面で英語を選んだ人の Cookie はそのまま使う。
 13. トップページの時間「16:00〜21:00」は、まだ決まっていない（user、2026-10-17）。今は直さない。アクセス「JR長岡駅 大手口から徒歩5分」は、新潟県の観光情報サイトの「徒歩約5分」と合っていた。
+14. （2026-10-17、`feat/worktree-dev`）作業を worktree で並べられるようにした。
+   - `.worktreeinclude`: Orca で worktree を作ると `cms/.env` と `web/.env` が写る。Orca はこの一覧を、登録した元の checkout から読むので、`main` に入ってから効く。素の `git worktree add` では写らない。 手元の CMS の DB（`cms/.wrangler/`）は写らず、新しい worktree では空から作られる。`web/.env` の `CMS_TOKEN` は元の DB で作ったものなので、その worktree の管理画面で作り直す（PR #16 のレビューの指摘。EmDash は token を DB に登録して照合する）。
+   - `compose.yaml`: entrypoint で、起動のたびに cms と web の `pnpm install --prefer-offline` を流す。worktree の新しい volume は空なので。入っていれば 1 秒ほどで終わる。`exec` は entrypoint を通らない。
+   - `compose.yaml`: ホスト側のポートを固定しない（docker が空いている番号を選ぶ）。コンテナの中は 4321 のままなので、`web/.env` の `CMS_URL` は変えなくてよい。
+   - `pnpm_store` の volume は、名前を固定して全 worktree で共有する。`node_modules` と `cf_config`（`cf` のログイン）の volume は worktree（compose の project）ごとに別。`cf_config` を共有しないのは、依存のスクリプトが動くコンテナに、ほかの worktree のログインまで渡さないため（PR #16 のセキュリティレビューの指摘）。
+   - entrypoint の `pnpm install` には `--frozen-lockfile` を付け、lockfile と違う版を入れない。依存のスクリプトは、`pnpm-workspace.yaml` の `allowBuilds` で esbuild と workerd だけに絞ってある。
+   - 試しの worktree で確かめた: 空の volume に store から 7 秒で入り、2 回目は 1 秒。ポートは 32768 が選ばれ、管理画面が応答した。`down -v` を打つと、共有の volume も消そうとした（使用中で消えなかった）。
+15. （2026-10-17、`feat/preview-badge`）Preview の公開サイトと管理画面に、上の真ん中の「Preview（確認用）」と、画面の縁の線を重ねる。ページやレイアウトのコードには書かない。
+   - 公開サイト: `web/astro.config.mjs` の integration が、`WORKERS_CI_BRANCH` が `preview` のビルドの後で、`dist` の HTML すべての `</body>` の前に差し込む。本番の HTML には入らない。
+   - 管理画面: `cms/src/middleware.ts` が、`PREVIEW`（`cms/wrangler.jsonc` の `previews.vars` にだけ置く）があるとき、HTML の応答に `HTMLRewriter` で差し込む。手元で試すときは `cms/.env` に `PREVIEW=1` を足して dev を開き直す。
+   - 目印の HTML は2か所（`web/astro.config.mjs` と `cms/src/middleware.ts`）にある。変えるときは両方を変える。
+   - 手元で、公開サイトは `preview` のビルドの 11 ページすべてに入り、ほかのビルドには入らないこと、管理画面は読み込んだ後の画面にも出続けることを確かめた。
+
+16. （2026-10-17）Workers Builds の「ブランチごとの Preview」（Worker Previews の `previews_enabled`）を、2つの Worker で止めた。Preview は、`cf` で作った Preview 用のビルドの設定（`preview` ブランチのときだけ動く）だけで出す（ADR 0007）。
+   - 止める前は、画面の「設定」→「ビルド」→「プレビューのベース」の「プレビューブランチのビルド」が、2つの Worker でオンだった。設定は `cf builds workers get <Worker の id>` の `previews_enabled` と `previews_base_config` で読める。
+     - `machibun-cms` のベースは、root が名前を変える前の、今は無いフォルダのままで、コマンドに `preview` ブランチの条件も無かった。`feat/worktree-dev` を push したとき、ここからそのブランチ用のビルドの設定が自動で作られ、`root directory not found` で落ちた。ブランチごとの設定は、Worker とは別の id（`90297c1e…`）に付くので、`machibun-cms` の設定の一覧には出なかった。ブランチを消すと消えた。ほかの feat ブランチで起きなかった理由は分かっていない。
+   - **`previews_enabled` をオフにすると、本番用でないビルドの設定（`cf` で作った Preview 用のものも）が、変数ごと消える。** オンに戻しても作られない。シークレットは後から値を読めないので、消えると値は戻らない。2026-10-17 に `7346b588-…` と `6e95cff8-…` が消え、`cf builds triggers create --body` で同じ中身に作り直した（今の id は「いまの状態」に書いた）。公開サイトの方には `CMS_URL` と `CMS_TOKEN`（Preview の `web-build-read`、user が端末で入れた）を入れ直した。
+   - `previews_base_config` は、本番用でないビルドの設定がある間は変えられない（画面でも `cf builds workers update` でも、エラーを出さずに元のまま）。有効にするときに同じ依頼で送ると保存され、`cf` で作った Preview 用の設定があると `[12048] Cannot enable preview settings while a non-production trigger exists` で断られる。`machibun-cms` のベースは、Preview 用の設定を消し、`{"previews_enabled":true,"previews_base_config":{…}}` を送ってから、オフに戻して直した（root `/cms`、`preview` の条件付きのコマンド、`cms/*`）。その後に Preview 用の設定を作り直した。`machibun2026` のベースも同じ手順で直した（root `/web`、`web/*`）。このとき Preview 用の設定が変数ごと消えたので、作り直して `CMS_URL` と `CMS_TOKEN` を入れ直した。今は2つとも `previews_enabled: false`。オンに戻さない。画面の「既存のプレビューに適用」も使わない。
+   - 画面でビルドの設定を変える前に、`cf builds triggers list --external-script-id <Worker の id>` で、何が付いているかを見る。
+   - 作り直した後、両方の Preview 用の設定で `preview` ブランチのビルドが通り、公開サイトの Preview は Deploy Hook（`cms-preview`）からもビルドされた。Deploy Hook は2つ（`cms-production`・`cms-preview`）とも消えていなかった。`preview` への push からのビルドは、この記録を取り込むときに確かめる。
+
 ## いまの状態
 
 - GitHub の repo は `yurumachi/machibun_website`（2026-10-16 に `machibun2026_website` から名前を変えた）。Workers Builds は repo の id でつながっていて、名前を変えたあとも、手でのビルドも push でのビルドも通った。
@@ -85,10 +110,10 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
   - 本番: 管理画面は https://machibun-cms.yurumachi-yuruyuru.workers.dev/_emdash/admin（D1 は 2026-10-16 に作り直し、user が管理者を作った）。公開サイトは https://machibun2026.yurumachi-yuruyuru.workers.dev 。
 - デプロイは Cloudflare の Git 連携（Workers Builds）で行い、Cloudflare の側で wrangler が動く（私たちは打たない）。ビルドの設定は1つの Worker に2つまで。
   - 管理画面の本番用（`f5bb4f2d-8eca-4204-9909-92f321b036be`）: `npx wrangler deploy`。root は `/cms`、`cms/*` が変わったときだけ。
-  - 管理画面の Preview 用（`7346b588-71ae-4cc3-a389-82df061055f2`）: `main` 以外を push すると `npx wrangler preview`。画面からは作れず、`cf builds triggers create` で作った。
+  - 管理画面の Preview 用（`965a5dd6-9080-4b71-b893-8838b7dbbf22`、2026-10-17 に作り直した。16 を見る）: `main` 以外を push するとビルドが始まり、`preview` ブランチのときだけ `npx wrangler preview`。root は `/cms`、`cms/*` が変わったときだけ。画面からは作れず、`cf builds triggers create --body` で作った。
   - 管理用の Preview は、Preview 用の設定を一時的に `npx wrangler preview --name preview` にし、`cf builds create <設定の id> --branch feat/emdash-site` で1回出して、元に戻した。
   - 公開サイトの本番用（`1bcd7adb-cc10-44f3-85f8-f53f2a161bd2`）: `main`、root は `/web`、`web/*` が変わったときだけ。変数 `CMS_URL`（本番の CMS）と `CMS_TOKEN`（シークレット）。
-  - 公開サイトの Preview 用（`6e95cff8-3daf-47e0-866d-37905eed12ab`）: `main` 以外、`web/*` が変わったときだけ `npx wrangler preview`。変数は Preview の CMS のもの。`cf builds triggers create` は `--path-excludes` を求めるので、`--body` で作った。
+  - 公開サイトの Preview 用（`5be603bd-a529-4762-81fb-bef045ea9d84`、2026-10-17 に作り直した。16 を見る）: `main` 以外、`web/*` が変わったときだけで、`preview` ブランチのときだけ `npx wrangler preview`。変数は Preview の CMS のもの。`cf builds triggers create` は `--path-excludes` を求めるので、`--body` で作った。
   - Preview の URL は、Worker の「ドメイン」の画面で「プレビュー」を有効にしないと出ない。管理画面は最初の本番のデプロイで有効になったが、公開サイトは本番にデプロイする前だったので、user が画面で有効にした。
   - `wrangler preview` は、`wrangler.jsonc` に `previews` の項目が無いと止まる。公開サイトは空の `previews: {}` を置いた。
   - ビルドの変数のシークレットは、`cf builds triggers environment-variables upsert <設定の id> --body '{"CMS_TOKEN":{"value":"…","is_secret":true}}'` で入れる。コンテナには `curl` が無い。
@@ -105,8 +130,8 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 
 ## 手元で動かす
 
-1. `docker compose up` で開き、http://localhost:4321 を見る。
-2. http://localhost:4321/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin を開くと、見本のデータが入り、開発用の管理者でログインできる。
+1. `docker compose up` で開く。依存は起動のたびに入る。ホスト側のポートは `docker compose port dev 4321` で見る（以下の `<port>`）。
+2. http://localhost:<port>/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin を開くと、見本のデータが入り、開発用の管理者でログインできる。
 3. seed を変えたら、`cms/.wrangler/` を消して作り直す（seed は空のデータベースにしか入らない）。
 4. 開発サーバーが動いているときに、別のコンテナで `pnpm build` を打たない。共有している `node_modules/.vite` が書き換わり、開発サーバーが 500 を返す（`docker compose restart dev` で直る）。ビルドを試すときは、`/tmp` にコピーして `pnpm install --offline` してから打つ。
 
