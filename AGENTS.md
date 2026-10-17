@@ -13,11 +13,11 @@
 - Python もコンテナの中の `uv run` で動かす。
 - Cloudflare の土台（D1・KV・Worker）は `cf` で扱い、wrangler を直接打たない。CMS の中身は MCP で扱う。
 - Worker の設定は `cms/wrangler.jsonc` と `web/wrangler.jsonc` に書く。`cms/` のものは Astro のアダプターが、`web/` のものは Workers Builds の wrangler が読む。私たちは wrangler のコマンドを打たない。`cf` 用の `cloudflare.config.ts` には、Astro と EmDash が対応したら移る（ADR 0005）。
-- 本番の D1・KV を直接書き換えない。試すのは手元か Preview（feat ブランチの確認用の環境）で行う。
+- 本番の D1・KV を直接書き換えない。試すのは手元か Preview（`preview` ブランチの確認用の環境）で行う。
 
 ## git
 
-- `main` は保護されている。`feat/<内容>` のブランチを切り、PR で取り込む。
+- `main` と `preview` は保護されている。`preview` から `feat/<内容>` のブランチを切り、PR で `preview` に取り込む。`preview` で確かめてから、`preview` を PR で `main` に取り込む（merge commit で。squash しない）。ADR 0007。
 - commit と push は、user に言われたときだけ行う。
 - commit メッセージは日本語で、1行目に何をしたか、本文になぜそうしたかを書く。
 - commit・PR に、モデル名・`Co-Authored-By`・session の URL を入れない。
