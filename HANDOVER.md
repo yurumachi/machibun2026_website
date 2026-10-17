@@ -83,6 +83,15 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
    - 目印の HTML は2か所（`web/astro.config.mjs` と `cms/src/middleware.ts`）にある。変えるときは両方を変える。
    - 手元で、公開サイトは `preview` のビルドの 11 ページすべてに入り、ほかのビルドには入らないこと、管理画面は読み込んだ後の画面にも出続けることを確かめた。
 
+16. （2026-10-17）Workers Builds の「ブランチごとの Preview」（Worker Previews の `previews_enabled`）を、2つの Worker で止めた。Preview は、`cf` で作った Preview 用のビルドの設定（`preview` ブランチのときだけ動く）だけで出す（ADR 0007）。
+   - 止める前は、画面の「設定」→「ビルド」→「プレビューのベース」の「プレビューブランチのビルド」が、2つの Worker でオンだった。設定は `cf builds workers get <Worker の id>` の `previews_enabled` と `previews_base_config` で読める。
+     - `machibun-cms` のベースは、root が名前を変える前の、今は無いフォルダのままで、コマンドに `preview` ブランチの条件も無かった。`feat/worktree-dev` を push したとき、ここからそのブランチ用のビルドの設定が自動で作られ、`root directory not found` で落ちた。ブランチごとの設定は、Worker とは別の id（`90297c1e…`）に付くので、`machibun-cms` の設定の一覧には出なかった。ブランチを消すと消えた。ほかの feat ブランチで起きなかった理由は分かっていない。
+     - `machibun2026` のベースには、ビルド変数 `CMS_TOKEN`（本番の読むだけの token）が、シークレットではなく普通の変数で入り、画面に平文で出ていた。`CMS_URL` は本番の CMS だった。2つとも消した。本番の token は作り直さない（2026-10-18、user が決めた）。
+   - **`previews_enabled` をオフにすると、本番用でないビルドの設定（`cf` で作った Preview 用のものも）が、変数ごと消える。** オンに戻しても作られない。シークレットは後から値を読めないので、消えると値は戻らない。2026-10-17 に `7346b588-…` と `6e95cff8-…` が消え、`cf builds triggers create --body` で同じ中身に作り直した（今の id は「いまの状態」に書いた）。公開サイトの方には `CMS_URL` と `CMS_TOKEN`（Preview の `web-build-read`、user が端末で入れた）を入れ直した。
+   - `previews_base_config` は、本番用でないビルドの設定がある間は変えられない（画面でも `cf builds workers update` でも、エラーを出さずに元のまま）。有効にするときに同じ依頼で送ると保存され、`cf` で作った Preview 用の設定があると `[12048] Cannot enable preview settings while a non-production trigger exists` で断られる。`machibun-cms` のベースは、Preview 用の設定を消し、`{"previews_enabled":true,"previews_base_config":{…}}` を送ってから、オフに戻して直した（root `/cms`、`preview` の条件付きのコマンド、`cms/*`）。その後に Preview 用の設定を作り直した。`machibun2026` のベースも同じ手順で直した（root `/web`、`web/*`）。このとき Preview 用の設定が変数ごと消えたので、作り直して `CMS_URL` と `CMS_TOKEN` を入れ直した。今は2つとも `previews_enabled: false`。オンに戻さない。画面の「既存のプレビューに適用」も使わない。
+   - 画面でビルドの設定を変える前に、`cf builds triggers list --external-script-id <Worker の id>` で、何が付いているかを見る。
+   - 作り直した後、両方の Preview 用の設定で `preview` ブランチのビルドが通り、公開サイトの Preview は Deploy Hook（`cms-preview`）からもビルドされた。Deploy Hook は2つ（`cms-production`・`cms-preview`）とも消えていなかった。`preview` への push からのビルドは、この記録を取り込むときに確かめる。
+
 ## いまの状態
 
 - GitHub の repo は `yurumachi/machibun_website`（2026-10-16 に `machibun2026_website` から名前を変えた）。Workers Builds は repo の id でつながっていて、名前を変えたあとも、手でのビルドも push でのビルドも通った。
@@ -102,10 +111,10 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
   - 本番: 管理画面は https://machibun-cms.yurumachi-yuruyuru.workers.dev/_emdash/admin（D1 は 2026-10-16 に作り直し、user が管理者を作った）。公開サイトは https://machibun2026.yurumachi-yuruyuru.workers.dev 。
 - デプロイは Cloudflare の Git 連携（Workers Builds）で行い、Cloudflare の側で wrangler が動く（私たちは打たない）。ビルドの設定は1つの Worker に2つまで。
   - 管理画面の本番用（`f5bb4f2d-8eca-4204-9909-92f321b036be`）: `npx wrangler deploy`。root は `/cms`、`cms/*` が変わったときだけ。
-  - 管理画面の Preview 用（`7346b588-71ae-4cc3-a389-82df061055f2`）: `main` 以外を push すると `npx wrangler preview`。画面からは作れず、`cf builds triggers create` で作った。
+  - 管理画面の Preview 用（`965a5dd6-9080-4b71-b893-8838b7dbbf22`、2026-10-17 に作り直した。16 を見る）: `main` 以外を push するとビルドが始まり、`preview` ブランチのときだけ `npx wrangler preview`。root は `/cms`、`cms/*` が変わったときだけ。画面からは作れず、`cf builds triggers create --body` で作った。
   - 管理用の Preview は、Preview 用の設定を一時的に `npx wrangler preview --name preview` にし、`cf builds create <設定の id> --branch feat/emdash-site` で1回出して、元に戻した。
   - 公開サイトの本番用（`1bcd7adb-cc10-44f3-85f8-f53f2a161bd2`）: `main`、root は `/web`、`web/*` が変わったときだけ。変数 `CMS_URL`（本番の CMS）と `CMS_TOKEN`（シークレット）。
-  - 公開サイトの Preview 用（`6e95cff8-3daf-47e0-866d-37905eed12ab`）: `main` 以外、`web/*` が変わったときだけ `npx wrangler preview`。変数は Preview の CMS のもの。`cf builds triggers create` は `--path-excludes` を求めるので、`--body` で作った。
+  - 公開サイトの Preview 用（`5be603bd-a529-4762-81fb-bef045ea9d84`、2026-10-17 に作り直した。16 を見る）: `main` 以外、`web/*` が変わったときだけで、`preview` ブランチのときだけ `npx wrangler preview`。変数は Preview の CMS のもの。`cf builds triggers create` は `--path-excludes` を求めるので、`--body` で作った。
   - Preview の URL は、Worker の「ドメイン」の画面で「プレビュー」を有効にしないと出ない。管理画面は最初の本番のデプロイで有効になったが、公開サイトは本番にデプロイする前だったので、user が画面で有効にした。
   - `wrangler preview` は、`wrangler.jsonc` に `previews` の項目が無いと止まる。公開サイトは空の `previews: {}` を置いた。
   - ビルドの変数のシークレットは、`cf builds triggers environment-variables upsert <設定の id> --body '{"CMS_TOKEN":{"value":"…","is_secret":true}}'` で入れる。コンテナには `curl` が無い。
