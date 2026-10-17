@@ -10,6 +10,8 @@
 ## 環境
 
 - コマンドはコンテナの中で動かす: `docker compose run --rm dev <コマンド>`（作業ディレクトリは `cms/`。公開サイトは `-w /work/web`、repo 全体で動かすときは `-w /work` を付ける）。`web/` のビルドは手元の CMS を読むので、動いている dev コンテナの中で `docker compose exec -w /work/web dev pnpm build` と打つ。ホストに Node や npm を入れない。
+- コンテナは起動するたびに `pnpm install` を流す（`compose.yaml` の entrypoint）。手元の開発サーバーのポートは起動ごとに変わるので、`docker compose port dev 4321` で見る。
+- 作業を並べるときは worktree を切ってよい。gitignore された `cms/.env` と `web/.env` は、Orca なら `.worktreeinclude` で写る。ほかの方法で切ったときは、元の checkout から手で写す。どの worktree でも `docker compose down -v` を打たない（共有している pnpm の store と `cf` のログインの volume まで消そうとする）。
 - Python もコンテナの中の `uv run` で動かす。
 - Cloudflare の土台（D1・KV・Worker）は `cf` で扱い、wrangler を直接打たない。CMS の中身は MCP で扱う。
 - Worker の設定は `cms/wrangler.jsonc` と `web/wrangler.jsonc` に書く。`cms/` のものは Astro のアダプターが、`web/` のものは Workers Builds の wrangler が読む。私たちは wrangler のコマンドを打たない。`cf` 用の `cloudflare.config.ts` には、Astro と EmDash が対応したら移る（ADR 0005）。

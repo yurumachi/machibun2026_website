@@ -66,6 +66,13 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 11. （済み、2026-10-17）本番の公開サイトに Cloudflare Web Analytics を入れた（クレジットカードは要らなかった）。`cf rum site-info create` で作ったサイト（host は `machibun2026.yurumachi-yuruyuru.workers.dev`）の beacon を、`WORKERS_CI_BRANCH` が `main` のビルドにだけ入れる（`web/src/layouts/Base.astro`）。数は Cloudflare の画面の Web Analytics で見る。`machibun2026` の Workers Logs は、Worker のコードが無く静的なファイルだけなので、有効にしてもほとんど残らないと考えて入れていない。
 12. （2026-10-17）管理画面を最初から日本語で出す。EmDash は Cookie `emdash-locale` → ブラウザの言語 → 英語 の順で言語を選ぶので、`cms/src/middleware.ts` で、Cookie が無い人に `emdash-locale=ja` を付けて開き直させる。画面で英語を選んだ人の Cookie はそのまま使う。
 13. トップページの時間「16:00〜21:00」は、まだ決まっていない（user、2026-10-17）。今は直さない。アクセス「JR長岡駅 大手口から徒歩5分」は、新潟県の観光情報サイトの「徒歩約5分」と合っていた。
+14. （2026-10-17、`feat/worktree-dev`）作業を worktree で並べられるようにした。
+   - `.worktreeinclude`: Orca で worktree を作ると `cms/.env` と `web/.env` が写る。Orca はこの一覧を、登録した元の checkout から読むので、`main` に入ってから効く。素の `git worktree add` では写らない。
+   - `compose.yaml`: entrypoint で、起動のたびに cms と web の `pnpm install --prefer-offline` を流す。worktree の新しい volume は空なので。入っていれば 1 秒ほどで終わる。`exec` は entrypoint を通らない。
+   - `compose.yaml`: ホスト側のポートを固定しない（docker が空いている番号を選ぶ）。コンテナの中は 4321 のままなので、`web/.env` の `CMS_URL` は変えなくてよい。
+   - `pnpm_store` と `cf_config` の volume は、名前を固定して全 worktree で共有する。`node_modules` の volume は worktree（compose の project）ごとに別。
+   - 試しの worktree で確かめた: 空の volume に store から 7 秒で入り、2 回目は 1 秒。ポートは 32768 が選ばれ、管理画面が応答した。`down -v` を打つと、共有の volume も消そうとした（使用中で消えなかった）。
+
 ## いまの状態
 
 - GitHub の repo は `yurumachi/machibun_website`（2026-10-16 に `machibun2026_website` から名前を変えた）。Workers Builds は repo の id でつながっていて、名前を変えたあとも、手でのビルドも push でのビルドも通った。
@@ -105,8 +112,8 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 
 ## 手元で動かす
 
-1. `docker compose up` で開き、http://localhost:4321 を見る。
-2. http://localhost:4321/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin を開くと、見本のデータが入り、開発用の管理者でログインできる。
+1. `docker compose up` で開く。依存は起動のたびに入る。ホスト側のポートは `docker compose port dev 4321` で見る（以下の `<port>`）。
+2. http://localhost:<port>/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin を開くと、見本のデータが入り、開発用の管理者でログインできる。
 3. seed を変えたら、`cms/.wrangler/` を消して作り直す（seed は空のデータベースにしか入らない）。
 4. 開発サーバーが動いているときに、別のコンテナで `pnpm build` を打たない。共有している `node_modules/.vite` が書き換わり、開発サーバーが 500 を返す（`docker compose restart dev` で直る）。ビルドを試すときは、`/tmp` にコピーして `pnpm install --offline` してから打つ。
 
