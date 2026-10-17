@@ -9,8 +9,11 @@ services:
       - web_node_modules:/work/web/node_modules
       - pnpm_store:/root/.local/share/pnpm/store
       - cf_config:/root/.config/cloudflare
+    # image に依存を入れて空の volume に写させる方法は採らない。写るのは volume が空のときの1回だけで、lockfile が変わっても古いまま残るため
+    entrypoint: ["sh", "-c", "pnpm -C /work/cms install --frozen-lockfile --prefer-offline && pnpm -C /work/web install --frozen-lockfile --prefer-offline && exec \"$$@\"", "--"]
+    # 4321 に固定する方法は採らない。worktree ごとに開発サーバーを立てるとぶつかるため。ホスト側の番号は docker compose port dev 4321 で見る
     ports:
-      - "4321:4321"
+      - "4321"
     env_file:
       - path: .env
         required: false
@@ -19,5 +22,8 @@ services:
 volumes:
   node_modules:
   web_node_modules:
+  # store は worktree の間で共有する。名前は最初の checkout のフォルダ名から付いたものを引き継ぐ
   pnpm_store:
+    name: machibun2026_website_pnpm_store
+  # cf のログインを共有する方法は採らない。依存のスクリプトが動くコンテナに、ほかの worktree のログインまで渡さないため
   cf_config:

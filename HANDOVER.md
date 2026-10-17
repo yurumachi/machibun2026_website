@@ -70,6 +70,13 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 11. （済み、2026-10-17）本番の公開サイトに Cloudflare Web Analytics を入れた（クレジットカードは要らなかった）。`cf rum site-info create` で作ったサイト（host は `machibun2026.yurumachi-yuruyuru.workers.dev`）の beacon を、`WORKERS_CI_BRANCH` が `main` のビルドにだけ入れる（`web/src/layouts/Base.astro`）。数は Cloudflare の画面の Web Analytics で見る。`machibun2026` の Workers Logs は、Worker のコードが無く静的なファイルだけなので、有効にしてもほとんど残らないと考えて入れていない。
 12. （2026-10-17）管理画面を最初から日本語で出す。EmDash は Cookie `emdash-locale` → ブラウザの言語 → 英語 の順で言語を選ぶので、`cms/src/middleware.ts` で、Cookie が無い人に `emdash-locale=ja` を付けて開き直させる。画面で英語を選んだ人の Cookie はそのまま使う。
 13. トップページの時間「16:00〜21:00」は、まだ決まっていない（user、2026-10-17）。今は直さない。アクセス「JR長岡駅 大手口から徒歩5分」は、新潟県の観光情報サイトの「徒歩約5分」と合っていた。
+14. （2026-10-17、`feat/worktree-dev`）作業を worktree で並べられるようにした。
+   - `.worktreeinclude`: Orca で worktree を作ると `cms/.env` と `web/.env` が写る。Orca はこの一覧を、登録した元の checkout から読むので、`main` に入ってから効く。素の `git worktree add` では写らない。 手元の CMS の DB（`cms/.wrangler/`）は写らず、新しい worktree では空から作られる。`web/.env` の `CMS_TOKEN` は元の DB で作ったものなので、その worktree の管理画面で作り直す（PR #16 のレビューの指摘。EmDash は token を DB に登録して照合する）。
+   - `compose.yaml`: entrypoint で、起動のたびに cms と web の `pnpm install --prefer-offline` を流す。worktree の新しい volume は空なので。入っていれば 1 秒ほどで終わる。`exec` は entrypoint を通らない。
+   - `compose.yaml`: ホスト側のポートを固定しない（docker が空いている番号を選ぶ）。コンテナの中は 4321 のままなので、`web/.env` の `CMS_URL` は変えなくてよい。
+   - `pnpm_store` の volume は、名前を固定して全 worktree で共有する。`node_modules` と `cf_config`（`cf` のログイン）の volume は worktree（compose の project）ごとに別。`cf_config` を共有しないのは、依存のスクリプトが動くコンテナに、ほかの worktree のログインまで渡さないため（PR #16 のセキュリティレビューの指摘）。
+   - entrypoint の `pnpm install` には `--frozen-lockfile` を付け、lockfile と違う版を入れない。依存のスクリプトは、`pnpm-workspace.yaml` の `allowBuilds` で esbuild と workerd だけに絞ってある。
+   - 試しの worktree で確かめた: 空の volume に store から 7 秒で入り、2 回目は 1 秒。ポートは 32768 が選ばれ、管理画面が応答した。`down -v` を打つと、共有の volume も消そうとした（使用中で消えなかった）。
 15. （2026-10-17、`feat/preview-badge`）Preview の公開サイトと管理画面に、上の真ん中の「Preview（確認用）」と、画面の縁の線を重ねる。ページやレイアウトのコードには書かない。
    - 公開サイト: `web/astro.config.mjs` の integration が、`WORKERS_CI_BRANCH` が `preview` のビルドの後で、`dist` の HTML すべての `</body>` の前に差し込む。本番の HTML には入らない。
    - 管理画面: `cms/src/middleware.ts` が、`PREVIEW`（`cms/wrangler.jsonc` の `previews.vars` にだけ置く）があるとき、HTML の応答に `HTMLRewriter` で差し込む。手元で試すときは `cms/.env` に `PREVIEW=1` を足して dev を開き直す。
@@ -115,8 +122,8 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 
 ## 手元で動かす
 
-1. `docker compose up` で開き、http://localhost:4321 を見る。
-2. http://localhost:4321/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin を開くと、見本のデータが入り、開発用の管理者でログインできる。
+1. `docker compose up` で開く。依存は起動のたびに入る。ホスト側のポートは `docker compose port dev 4321` で見る（以下の `<port>`）。
+2. http://localhost:<port>/_emdash/api/setup/dev-bypass?redirect=/_emdash/admin を開くと、見本のデータが入り、開発用の管理者でログインできる。
 3. seed を変えたら、`cms/.wrangler/` を消して作り直す（seed は空のデータベースにしか入らない）。
 4. 開発サーバーが動いているときに、別のコンテナで `pnpm build` を打たない。共有している `node_modules/.vite` が書き換わり、開発サーバーが 500 を返す（`docker compose restart dev` で直る）。ビルドを試すときは、`/tmp` にコピーして `pnpm install --offline` してから打つ。
 
