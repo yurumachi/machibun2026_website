@@ -70,7 +70,8 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
    - `.worktreeinclude`: Orca で worktree を作ると `cms/.env` と `web/.env` が写る。Orca はこの一覧を、登録した元の checkout から読むので、`main` に入ってから効く。素の `git worktree add` では写らない。
    - `compose.yaml`: entrypoint で、起動のたびに cms と web の `pnpm install --prefer-offline` を流す。worktree の新しい volume は空なので。入っていれば 1 秒ほどで終わる。`exec` は entrypoint を通らない。
    - `compose.yaml`: ホスト側のポートを固定しない（docker が空いている番号を選ぶ）。コンテナの中は 4321 のままなので、`web/.env` の `CMS_URL` は変えなくてよい。
-   - `pnpm_store` と `cf_config` の volume は、名前を固定して全 worktree で共有する。`node_modules` の volume は worktree（compose の project）ごとに別。
+   - `pnpm_store` の volume は、名前を固定して全 worktree で共有する。`node_modules` と `cf_config`（`cf` のログイン）の volume は worktree（compose の project）ごとに別。`cf_config` を共有しないのは、依存のスクリプトが動くコンテナに、ほかの worktree のログインまで渡さないため（PR #16 のセキュリティレビューの指摘）。
+   - entrypoint の `pnpm install` には `--frozen-lockfile` を付け、lockfile と違う版を入れない。依存のスクリプトは、`pnpm-workspace.yaml` の `allowBuilds` で esbuild と workerd だけに絞ってある。
    - 試しの worktree で確かめた: 空の volume に store から 7 秒で入り、2 回目は 1 秒。ポートは 32768 が選ばれ、管理画面が応答した。`down -v` を打つと、共有の volume も消そうとした（使用中で消えなかった）。
 
 ## いまの状態
