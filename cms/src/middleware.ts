@@ -5,9 +5,15 @@ import { requestRebuild } from "./plugins/rebuild-web";
 const MEDIA_REPLACE = /^\/_emdash\/api\/media\/[^/]+\/replace$/;
 
 // プラグインのフックで受ける方法は採らない。写真の差し替えでは、EmDash のフックが一つも呼ばれないため
+// 言語の Cookie を応答に付けるだけにする方法は採らない。EmDash は届いた要求の Cookie で言語を選ぶので、最初の1回が英語のまま出るため
 export const onRequest = defineMiddleware(async (context, next) => {
+	const { pathname } = context.url;
+	if (context.request.method === "GET" && pathname.startsWith("/_emdash/admin") && !context.cookies.has("emdash-locale")) {
+		context.cookies.set("emdash-locale", "ja", { path: "/_emdash", sameSite: "lax", maxAge: 31536000, secure: context.url.protocol === "https:" });
+		return context.redirect(pathname + context.url.search);
+	}
 	const res = await next();
-	if (context.request.method === "PUT" && res.ok && MEDIA_REPLACE.test(context.url.pathname)) {
+	if (context.request.method === "PUT" && res.ok && MEDIA_REPLACE.test(pathname)) {
 		waitUntil(requestRebuild(console.warn).catch(console.error));
 	}
 	return res;
