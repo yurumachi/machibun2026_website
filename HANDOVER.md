@@ -53,14 +53,14 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
    - 紹介文（`text` の項目）は、管理画面では「Enter markdown content...」と案内されるが、公開サイトではマークダウンとして描かず、改行だけ生かした文章で出す。マークダウンを HTML にすると、出展者が書いた危ない HTML を消す処理まで要るため。`**` などはそのまま出る。
    - お知らせの本文（Portable Text）は `astro-portabletext` で描く。リンクは `http`・`https`・`mailto`・`tel` だけ通す。本文の中の画像は、まだ描かない（出ない）。
 8. PageSpeed の直しは別の issue で行う: フォント（#2）、イラストの大きさ（#3）。
-9. （2026-10-17 に決めた。1〜4 と 7 の一部は済んだ）作業は feat → `preview` → `main` の順に取り込み、Preview は `preview` ブランチの1組（管理画面 `preview-machibun-cms` と公開サイト `preview-machibun2026`）だけにする（ADR 0007）。Preview の CMS の Hook が1つのブランチしかビルドし直せないため。次の順で設定する。Cloudflare と GitHub の設定を変える前と、消す前には user に確かめる。
+9. （2026-10-17 に決めた。6 の Access のほかは済んだ）作業は feat → `preview` → `main` の順に取り込み、Preview は `preview` ブランチの1組（管理画面 `preview-machibun-cms` と公開サイト `preview-machibun2026`）だけにする（ADR 0007）。Preview の CMS の Hook が1つのブランチしかビルドし直せないため。次の順で設定する。Cloudflare と GitHub の設定を変える前と、消す前には user に確かめる。
    1. （済み、2026-10-17）2つの Worker の Preview 用のビルドの設定（`7346b588-…`、`6e95cff8-…`）で、`preview` ブランチのときだけビルドとデプロイをする。Preview 用の設定の `branch_includes`・`branch_excludes` は `["*"]`・`["main"]` から変えられない（API が `Invalid request body` を返す。本番用の設定は変えられる）。そこで、ビルドのコマンドを `[ "$WORKERS_CI_BRANCH" != preview ] || pnpm build`、デプロイのコマンドを `[ "$WORKERS_CI_BRANCH" != preview ] || npx wrangler preview` にした。作業ブランチを push すると、ビルドは始まるが、依存を入れたところで何もせずに終わる。ブランチ名 `preview` から、今と同じ `preview-machibun-cms` ができる。
    2. （済み、2026-10-17）PR #6（ADR 0007・AGENTS.md・`previews.vars.PUBLIC_SITE_URL` を `preview-machibun2026…` に）を `main` に取り込んだ。
    3. （済み、2026-10-17）`main` から `preview` ブランチを作った。
    4. （済み、2026-10-17）公開サイトに Deploy Hook を2つ作り直した: `cms-production`（`main`）と `cms-preview`（`preview`）。user が画面で、管理画面の Worker の secret `DEPLOY_HOOK_URL` を環境ごとに入れ替えた。base config は新しい Preview にだけ付くので、`cf previews delete preview --worker machibun-cms --force` で消して `cf builds create 7346b588-… --branch preview` で作り直した（D1 は同じなので、パスキーと中身は残った）。両方の管理画面でステージを中身を変えずに保存し、それぞれの Hook からビルドが始まることを確かめた。Hook から始まったビルドでも `WORKERS_CI_BRANCH` は入り、`preview-machibun2026` が更新された。
-   5. GitHub で `preview` を `main` と同じように保護する（PR でだけ取り込む）。
-   6. 公開サイトの Preview の URL に Cloudflare Access をかける。本番も `workers.dev` なので、Preview の URL だけにかけられるかを先に確かめる。管理画面の Preview にはかけない（ビルドがその API を読むため）。
-   7. 古いものを消す。古い Deploy Hook 2つは消した（2026-10-17）。残りは、公開サイトの Preview `feat-emdash-site` と、管理画面の古い Preview（`feat-emdash-site` など。`cf` には Preview を一覧するコマンドが無いので、画面で見る）。
+   5. （済み、2026-10-17）GitHub で `preview` を `main` と同じように保護した（PR でだけ取り込む。管理者にも効く。force push と削除は禁止）。
+   6. （止めている、2026-10-17）公開サイトの Preview の URL に Cloudflare Access をかける。本番も `workers.dev` なので、Preview の URL だけにかけられるかを先に確かめる。管理画面の Preview にはかけない（ビルドがその API を読むため）。 Access を使うには、先にアカウントで Zero Trust を始める（無料プラン、チーム名は `yurumachi` にするつもり）必要があり、申し込みでクレジットカードの登録を求められる。登録してよいかを user だけでは決められないので止めた。許す人は、メールアドレス2つ（user が決めた。公開の repo なので、ここには書かない）と、GitHub の org `yurumachi` のメンバーにするつもり。GitHub の org には、Access のログイン用の OAuth App を user が作った（Redirect URI は `https://yurumachi.cloudflareaccess.com/cdn-cgi/access/callback`）。Access の画面は、Worker の設定の「Access」のタブから入る。
+   7. （済み、2026-10-17）古いものを消した。古い Deploy Hook 2つを消した。Workers Builds はブランチごとに Preview を自動で作り（`auto_delete: true`）、GitHub でブランチを消すとその Preview も消える。`feat-emdash-site` などの古い Preview は、ブランチを消したときに消えていた。
 
 ## いまの状態
 
@@ -124,4 +124,4 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 ## 決まっていないこと
 
 - 協賛のランク・見せ方・広告との分け方（`docs/content-model.md`）。
-- 管理画面の入口を Cloudflare Access で絞るか（公開サイトの Preview にかけることは決めた。9 の 6）。
+- 管理画面の入口を Cloudflare Access で絞るか（公開サイトの Preview にかけることは決めた。Zero Trust の申し込みでクレジットカードが要るので止めている。9 の 6）。
