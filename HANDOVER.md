@@ -67,7 +67,7 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 12. （2026-10-17）管理画面を最初から日本語で出す。EmDash は Cookie `emdash-locale` → ブラウザの言語 → 英語 の順で言語を選ぶので、`cms/src/middleware.ts` で、Cookie が無い人に `emdash-locale=ja` を付けて開き直させる。画面で英語を選んだ人の Cookie はそのまま使う。
 13. トップページの時間「16:00〜21:00」は、まだ決まっていない（user、2026-10-17）。今は直さない。アクセス「JR長岡駅 大手口から徒歩5分」は、新潟県の観光情報サイトの「徒歩約5分」と合っていた。
 14. （2026-10-17、`feat/worktree-dev`）作業を worktree で並べられるようにした。
-   - `.worktreeinclude`: Orca で worktree を作ると `cms/.env` と `web/.env` が写る。Orca はこの一覧を、登録した元の checkout から読むので、`main` に入ってから効く。素の `git worktree add` では写らない。
+   - `.worktreeinclude`: Orca で worktree を作ると `cms/.env` と `web/.env` が写る。Orca はこの一覧を、登録した元の checkout から読むので、`main` に入ってから効く。素の `git worktree add` では写らない。 手元の CMS の DB（`cms/.wrangler/`）は写らず、新しい worktree では空から作られる。`web/.env` の `CMS_TOKEN` は元の DB で作ったものなので、その worktree の管理画面で作り直す（PR #16 のレビューの指摘。EmDash は token を DB に登録して照合する）。
    - `compose.yaml`: entrypoint で、起動のたびに cms と web の `pnpm install --prefer-offline` を流す。worktree の新しい volume は空なので。入っていれば 1 秒ほどで終わる。`exec` は entrypoint を通らない。
    - `compose.yaml`: ホスト側のポートを固定しない（docker が空いている番号を選ぶ）。コンテナの中は 4321 のままなので、`web/.env` の `CMS_URL` は変えなくてよい。
    - `pnpm_store` の volume は、名前を固定して全 worktree で共有する。`node_modules` と `cf_config`（`cf` のログイン）の volume は worktree（compose の project）ごとに別。`cf_config` を共有しないのは、依存のスクリプトが動くコンテナに、ほかの worktree のログインまで渡さないため（PR #16 のセキュリティレビューの指摘）。
