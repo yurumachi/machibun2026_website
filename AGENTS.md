@@ -17,7 +17,7 @@
 
 ## git
 
-- `main` と `preview` は保護されている。`preview` から `feat/<内容>` のブランチを切り、PR で `preview` に取り込む。`preview` で確かめてから、`preview` を PR で `main` に取り込む（merge commit で。squash しない）。ADR 0007。
+- `main` と `preview` は保護されている。`preview` から `feat/<内容>` のブランチを切り、PR で `preview` に取り込む。`preview` で確かめてから、`preview` を PR で `main` に取り込む（merge commit で。squash しない）。ADR 0007。 merge したら、その feat ブランチは GitHub と手元の両方から消す（Cloudflare のそのブランチの Preview も自動で消える）。
 - commit と push は、user に言われたときだけ行う。
 - commit メッセージは日本語で、1行目に何をしたか、本文になぜそうしたかを書く。
 - commit・PR に、モデル名・`Co-Authored-By`・session の URL を入れない。
