@@ -66,6 +66,12 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 11. （済み、2026-10-17）本番の公開サイトに Cloudflare Web Analytics を入れた（クレジットカードは要らなかった）。`cf rum site-info create` で作ったサイト（host は `machibun2026.yurumachi-yuruyuru.workers.dev`）の beacon を、`WORKERS_CI_BRANCH` が `main` のビルドにだけ入れる（`web/src/layouts/Base.astro`）。数は Cloudflare の画面の Web Analytics で見る。`machibun2026` の Workers Logs は、Worker のコードが無く静的なファイルだけなので、有効にしてもほとんど残らないと考えて入れていない。
 12. （2026-10-17）管理画面を最初から日本語で出す。EmDash は Cookie `emdash-locale` → ブラウザの言語 → 英語 の順で言語を選ぶので、`cms/src/middleware.ts` で、Cookie が無い人に `emdash-locale=ja` を付けて開き直させる。画面で英語を選んだ人の Cookie はそのまま使う。
 13. トップページの時間「16:00〜21:00」は、まだ決まっていない（user、2026-10-17）。今は直さない。アクセス「JR長岡駅 大手口から徒歩5分」は、新潟県の観光情報サイトの「徒歩約5分」と合っていた。
+15. （2026-10-17、`feat/preview-badge`）Preview の公開サイトと管理画面に、上の真ん中の「Preview（確認用）」と、画面の縁の線を重ねる。ページやレイアウトのコードには書かない。
+   - 公開サイト: `web/astro.config.mjs` の integration が、`WORKERS_CI_BRANCH` が `preview` のビルドの後で、`dist` の HTML すべての `</body>` の前に差し込む。本番の HTML には入らない。
+   - 管理画面: `cms/src/middleware.ts` が、`PREVIEW`（`cms/wrangler.jsonc` の `previews.vars` にだけ置く）があるとき、HTML の応答に `HTMLRewriter` で差し込む。手元で試すときは `cms/.env` に `PREVIEW=1` を足して dev を開き直す。
+   - 目印の HTML は2か所（`web/astro.config.mjs` と `cms/src/middleware.ts`）にある。変えるときは両方を変える。
+   - 手元で、公開サイトは `preview` のビルドの 11 ページすべてに入り、ほかのビルドには入らないこと、管理画面は読み込んだ後の画面にも出続けることを確かめた。
+
 ## いまの状態
 
 - GitHub の repo は `yurumachi/machibun_website`（2026-10-16 に `machibun2026_website` から名前を変えた）。Workers Builds は repo の id でつながっていて、名前を変えたあとも、手でのビルドも push でのビルドも通った。
