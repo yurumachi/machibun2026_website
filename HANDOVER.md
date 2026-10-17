@@ -43,25 +43,24 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
 5. （済み、2026-10-17）PR #4 を `main` に取り込んだ（merge commit `2277df2`）。
    - 取り込む前に、管理画面の本番用のビルドの設定（`f5bb4f2d-…`）を `main` に、Preview 用（`7346b588-…`）を「`main` 以外」に戻した。
    - 公開サイトの本番 https://machibun2026.yurumachi-yuruyuru.workers.dev は、本番の CMS を読んで初めてのビルドが通った。本番の `CMS_TOKEN` も正しかった。
-   - 公開サイトの `main` の Deploy Hook（`<deploy_hook_uuid>`）を、管理画面の本番の secret `DEPLOY_HOOK_URL` に入れた。本番の管理画面で見本の出展者の公開を取り消すと公開サイトから消え、公開し直すと戻ることを確かめた（反映まで2分ほど）。
-   - Deploy Hook の URL は `https://api.cloudflare.com/client/v4/workers/builds/deploy_hooks/<deploy_hook_uuid>`。作ったときの返事に URL は入らない。
+   - 公開サイトの `main` の Deploy Hook を、管理画面の本番の secret `DEPLOY_HOOK_URL` に入れた。本番の管理画面で見本の出展者の公開を取り消すと公開サイトから消え、公開し直すと戻ることを確かめた（反映まで2分ほど）。
+   - Deploy Hook の URL は `https://api.cloudflare.com/client/v4/workers/builds/deploy_hooks/<id>`。作ったときの返事に URL は入らない。URL を知っていれば誰でもビルドを始められるので、id は repo にも会話にも書かない（2026-10-17、HANDOVER に書いていた id を全履歴から消し、Hook を作り直した）。
    - 本番の公開サイトには、本番の CMS の見本のデータ（架空の出展者6組・お知らせ・協賛企業A〜C）が出ている。誰でも開ける。どうするか（そのまま、非公開、消す）は user が決める。
-   - Preview の管理画面の Deploy Hook は、まだ `feat/emdash-site`（`149a42e5-…`）を指している。付け替えは 9 で行う。
    - 管理画面の「サイトを表示」は、EmDash の中で `/` に決め打ちされている。`cms/src/pages/index.astro` で、`/` を `PUBLIC_SITE_URL`（`cms/wrangler.jsonc` の `vars` と `previews.vars`）に転送する。EmDash の `siteUrl` は使わない（パスキーがそのホスト名に結び付くため）。
 6. EmDash は使える前提で進める（2026-10-16、user が決めた）。関門2の人による試し（user と学生、手順は emdash-gates.md）は後で行う。agent が通した結果は emdash-gates.md にある。試しのデータ（「関門2の試し」の出展者・お知らせ・出演者・出演枠）は、見本として残す。
-   - （済み、2026-10-16）管理用の Preview で公開すると、公開サイトの Preview がビルドし直される。公開サイトの feat の Deploy Hook（`<deploy_hook_uuid>`）を、管理画面の Worker の Preview の secret `DEPLOY_HOOK_URL` に置いた。
+   - （済み、2026-10-16）管理用の Preview で公開すると、公開サイトの Preview がビルドし直される。公開サイトの feat の Deploy Hook を、管理画面の Worker の Preview の secret `DEPLOY_HOOK_URL` に置いた。
 7. （済み、2026-10-16）出展者の詳細ページ（`/exhibitors/<識別名>`）とお知らせのページ（`/notices/<識別名>`）を `web/` に作った。年は URL の頭（Worker の名前 `machibun2026`）に入れ、ページの URL には入れない。
    - 紹介文（`text` の項目）は、管理画面では「Enter markdown content...」と案内されるが、公開サイトではマークダウンとして描かず、改行だけ生かした文章で出す。マークダウンを HTML にすると、出展者が書いた危ない HTML を消す処理まで要るため。`**` などはそのまま出る。
    - お知らせの本文（Portable Text）は `astro-portabletext` で描く。リンクは `http`・`https`・`mailto`・`tel` だけ通す。本文の中の画像は、まだ描かない（出ない）。
 8. PageSpeed の直しは別の issue で行う: フォント（#2）、イラストの大きさ（#3）。
-9. （2026-10-17 に決めた。まだ設定していない）作業は feat → `preview` → `main` の順に取り込み、Preview は `preview` ブランチの1組（管理画面 `preview-machibun-cms` と公開サイト `preview-machibun2026`）だけにする（ADR 0007）。`feat/emdash-site` と `feat/cms-view-site` は消したので、Preview の Deploy Hook（`149a42e5-…`）は無いブランチを指していて、Preview の CMS で公開するとビルドが失敗する。次の順で設定する。Cloudflare と GitHub の設定を変える前と、消す前には user に確かめる。
+9. （2026-10-17 に決めた。1〜4 と 7 の一部は済んだ）作業は feat → `preview` → `main` の順に取り込み、Preview は `preview` ブランチの1組（管理画面 `preview-machibun-cms` と公開サイト `preview-machibun2026`）だけにする（ADR 0007）。Preview の CMS の Hook が1つのブランチしかビルドし直せないため。次の順で設定する。Cloudflare と GitHub の設定を変える前と、消す前には user に確かめる。
    1. （済み、2026-10-17）2つの Worker の Preview 用のビルドの設定（`7346b588-…`、`6e95cff8-…`）で、`preview` ブランチのときだけビルドとデプロイをする。Preview 用の設定の `branch_includes`・`branch_excludes` は `["*"]`・`["main"]` から変えられない（API が `Invalid request body` を返す。本番用の設定は変えられる）。そこで、ビルドのコマンドを `[ "$WORKERS_CI_BRANCH" != preview ] || pnpm build`、デプロイのコマンドを `[ "$WORKERS_CI_BRANCH" != preview ] || npx wrangler preview` にした。作業ブランチを push すると、ビルドは始まるが、依存を入れたところで何もせずに終わる。ブランチ名 `preview` から、今と同じ `preview-machibun-cms` ができる。
-   2. この PR（ADR 0007・AGENTS.md・`previews.vars.PUBLIC_SITE_URL` を `preview-machibun2026…` に）を `main` に取り込む。
-   3. `main` から `preview` ブランチを作って push する。2つの Preview がビルドされることを確かめる。
-   4. 公開サイトの Preview 用の設定に、`preview` の Deploy Hook を作る。user が画面で、管理画面の Worker の Preview の secret `DEPLOY_HOOK_URL` を新しい URL に入れ替える。base config は新しい Preview にだけ付くので、`cf previews delete preview --worker machibun-cms --force` で消してビルドし直す（D1 は同じなので、パスキーと中身は残る）。Preview の CMS で公開して、`preview-machibun2026` が変わることを確かめる。
+   2. （済み、2026-10-17）PR #6（ADR 0007・AGENTS.md・`previews.vars.PUBLIC_SITE_URL` を `preview-machibun2026…` に）を `main` に取り込んだ。
+   3. （済み、2026-10-17）`main` から `preview` ブランチを作った。
+   4. （済み、2026-10-17）公開サイトに Deploy Hook を2つ作り直した: `cms-production`（`main`）と `cms-preview`（`preview`）。user が画面で、管理画面の Worker の secret `DEPLOY_HOOK_URL` を環境ごとに入れ替えた。base config は新しい Preview にだけ付くので、`cf previews delete preview --worker machibun-cms --force` で消して `cf builds create 7346b588-… --branch preview` で作り直した（D1 は同じなので、パスキーと中身は残った）。両方の管理画面でステージを中身を変えずに保存し、それぞれの Hook からビルドが始まることを確かめた。Hook から始まったビルドでも `WORKERS_CI_BRANCH` は入り、`preview-machibun2026` が更新された。
    5. GitHub で `preview` を `main` と同じように保護する（PR でだけ取り込む）。
    6. 公開サイトの Preview の URL に Cloudflare Access をかける。本番も `workers.dev` なので、Preview の URL だけにかけられるかを先に確かめる。管理画面の Preview にはかけない（ビルドがその API を読むため）。
-   7. 古いものを消す: Deploy Hook `149a42e5-…`、公開サイトの Preview `feat-emdash-site`、管理画面の古い Preview。
+   7. 古いものを消す。古い Deploy Hook 2つは消した（2026-10-17）。残りは、公開サイトの Preview `feat-emdash-site` と、管理画面の古い Preview（`feat-emdash-site` など。`cf` には Preview を一覧するコマンドが無いので、画面で見る）。
 
 ## いまの状態
 
@@ -78,7 +77,7 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
   - 手元（コンテナ）: `cms/.wrangler/` に保存する。seed から作り、いつでも作り直せる。
   - Preview: Cloudflare の Worker Previews。D1・KV は `cms/wrangler.jsonc` の `previews` に書いた Preview 用のものを、すべての Preview で共有する。URL は `<Preview の名前>-<Worker の名前>.yurumachi-yuruyuru.workers.dev` で、名前はふつうブランチ名から作られる。
     - 管理用の Preview（固定）: https://preview-machibun-cms.yurumachi-yuruyuru.workers.dev/_emdash/admin 。管理者は user が作った（2026-10-16、パスキー）。
-    - 公開サイトの Preview: いまは https://feat-emdash-site-machibun2026.yurumachi-yuruyuru.workers.dev 。9 の設定が済んだら https://preview-machibun2026.yurumachi-yuruyuru.workers.dev 。Preview の CMS を読む。
+    - 公開サイトの Preview: https://preview-machibun2026.yurumachi-yuruyuru.workers.dev 。Preview の CMS を読む。
   - 本番: 管理画面は https://machibun-cms.yurumachi-yuruyuru.workers.dev/_emdash/admin（D1 は 2026-10-16 に作り直し、user が管理者を作った）。公開サイトは https://machibun2026.yurumachi-yuruyuru.workers.dev 。
 - デプロイは Cloudflare の Git 連携（Workers Builds）で行い、Cloudflare の側で wrangler が動く（私たちは打たない）。ビルドの設定は1つの Worker に2つまで。
   - 管理画面の本番用（`f5bb4f2d-8eca-4204-9909-92f321b036be`）: `npx wrangler deploy`。root は `/cms`、`cms/*` が変わったときだけ。
@@ -98,6 +97,7 @@ EmDash を入力の場所（管理画面と編集用の鍵のフォーム）に�
   | KV `SESSION` | `machibun-session`（`d9219de9ab9f4f74af67822991ce1aca`） | `machibun-preview-session`（`346f84bf0a62489db258a863451895ae`） |
 
 - `cf` のログインは volume（`cf_config`）に残る。
+- 管理画面をブラウザで操作するときは、i2 の Chrome（`~/.local/share/chrome-profiles/iodine2net`、ポート 9333）に `agent-browser --cdp 9333` でつなぐ。パスキーでのログインは user が行う。本番と Preview はホスト名が違うので、別々にログインが要る。
 
 ## 手元で動かす
 
