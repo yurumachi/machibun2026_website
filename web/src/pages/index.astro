@@ -1,5 +1,14 @@
 ---
 import { Image } from "astro:assets";
+import balloon from "../assets/illust/balloon.webp";
+import balloons from "../assets/illust/balloons.webp";
+import bulb1 from "../assets/illust/bulb-1.webp";
+import bulb2 from "../assets/illust/bulb-2.webp";
+import bulbGarland from "../assets/illust/bulb-garland.webp";
+import cheers from "../assets/illust/cheers.webp";
+import garland from "../assets/illust/garland.webp";
+import market from "../assets/illust/market.webp";
+import talk from "../assets/illust/talk.webp";
 import Base from "../layouts/Base.astro";
 import { YEAR, hhmm, isoDate, jaDate, list, mediaUrl, pageSlug, titleByReferrer, type MediaValue } from "../lib/cms";
 
@@ -45,20 +54,20 @@ const nameSponsors = sponsors.filter((s) => !s.data.logo);
 				<span class="blob blob--s5 only-wide hb-7"></span>
 			</div></div>
 			<div class="hero-side" aria-hidden="true">
-				<img class="sway-float hero-side--talk" src="/assets/illust/talk.webp" alt="" width="640" height="556" loading="lazy" />
-				<img class="sway-hang hero-side--bulb" src="/assets/illust/bulb-1.webp" alt="" width="284" height="317" loading="lazy" />
-				<img class="sway-float hero-side--balloon" src="/assets/illust/balloon.webp" alt="" width="325" height="407" loading="lazy" />
-				<img class="sway-hang hero-side--garland" src="/assets/illust/bulb-garland.webp" alt="" width="640" height="294" loading="lazy" />
+				<Image class="sway-float hero-side--talk" src={talk} alt="" width={224} densities={[1, 2]} layout="none" loading="lazy" />
+				<Image class="sway-hang hero-side--bulb" src={bulb1} alt="" width={80} densities={[1, 2]} layout="none" loading="lazy" />
+				<Image class="sway-float hero-side--balloon" src={balloon} alt="" width={96} densities={[1, 2]} layout="none" loading="lazy" />
+				<Image class="sway-hang hero-side--garland" src={bulbGarland} alt="" width={224} densities={[1, 2]} layout="none" loading="lazy" />
 			</div>
 
 			<div class="container">
 				<div class="ticket">
 					<div class="ticket__main">
-						<img class="linework bob hero-art--cheers" src="/assets/illust/cheers.webp" alt="" width="640" height="447" />
-						<img class="linework sway-hang hide-sm hero-art--garland" src="/assets/illust/garland.webp" alt="" width="529" height="290" />
-						<img class="linework sway-float hero-art--balloons" src="/assets/illust/balloons.webp" alt="" width="553" height="605" />
-						<img class="linework sway-hang hide-sm hero-art--bulb" src="/assets/illust/bulb-2.webp" alt="" width="329" height="295" />
-						<img class="linework bob hide-sm hero-art--market" src="/assets/illust/market.webp" alt="" width="640" height="419" />
+						<Image class="linework bob hero-art--cheers" src={cheers} alt="" width={192} densities={[1, 2]} layout="none" loading="eager" />
+						<Image class="linework sway-hang hide-sm hero-art--garland" src={garland} alt="" width={144} densities={[1, 2]} layout="none" loading="eager" />
+						<Image class="linework sway-float hero-art--balloons" src={balloons} alt="" width={112} densities={[1, 2]} layout="none" loading="eager" />
+						<Image class="linework sway-hang hide-sm hero-art--bulb" src={bulb2} alt="" width={80} densities={[1, 2]} layout="none" loading="eager" />
+						<Image class="linework bob hide-sm hero-art--market" src={market} alt="" width={208} densities={[1, 2]} layout="none" loading="eager" />
 
 						<p class="ticket__tagline"><span>まちナかで、</span><span>「すき」を</span><span>進化させていく。</span></p>
 						<h1 class="ticket__logo" id="hero-title"><img src="/assets/logo.svg" alt="まちナかぶんかさい" width="490" height="235" /></h1>
